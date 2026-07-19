@@ -32,7 +32,8 @@ export default function Footer() {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing['2xl'],
+    paddingTop: Spacing['2xl'],
+    paddingBottom: Spacing['3xl'] + 60,
     backgroundColor: Ink[900],
   },
   brand: {

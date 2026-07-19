@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Brand, Ink, Surface, Spacing, Radius, FontSize } from '../../constants/theme';
 
@@ -12,13 +12,27 @@ interface ChatInputProps {
   onChangeText: (text: string) => void;
   onSend: () => void;
   disabled?: boolean;
+  isKeyboardVisible?: boolean;
 }
 
-export default function ChatInput({ value, onChangeText, onSend, disabled }: ChatInputProps) {
+export default function ChatInput({
+  value,
+  onChangeText,
+  onSend,
+  disabled,
+  isKeyboardVisible = false,
+}: ChatInputProps) {
   const canSend = value.trim().length > 0 && !disabled;
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        !isKeyboardVisible && {
+          paddingBottom: Platform.OS === 'ios' ? 104 : 96,
+        },
+      ]}
+    >
       <TextInput
         style={styles.input}
         placeholder="Nhập tâm sự của bạn..."

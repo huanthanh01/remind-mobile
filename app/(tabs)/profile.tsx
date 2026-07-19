@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -42,53 +42,58 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.content}>
-        {/* Profile header */}
-        <View style={styles.profileCard}>
-          <Avatar
-            name={currentUser.fullName}
-            uri={currentUser.avatar}
-            size={72}
-          />
-          <Text style={styles.name}>{currentUser.fullName || 'Người dùng'}</Text>
-          <Text style={styles.email}>{currentUser.email}</Text>
-          <View style={styles.roleBadge}>
-            <Text style={styles.roleBadgeText}>
-              {currentUser.role === 'expert' ? 'Chuyên gia' : 
-               currentUser.role === 'admin' ? 'Quản trị viên' : 'Sinh viên'}
-            </Text>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent} 
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.content}>
+          {/* Profile header */}
+          <View style={styles.profileCard}>
+            <Avatar
+              name={currentUser.fullName}
+              uri={currentUser.avatar}
+              size={72}
+            />
+            <Text style={styles.name}>{currentUser.fullName || 'Người dùng'}</Text>
+            <Text style={styles.email}>{currentUser.email}</Text>
+            <View style={styles.roleBadge}>
+              <Text style={styles.roleBadgeText}>
+                {currentUser.role === 'expert' ? 'Chuyên gia' : 
+                 currentUser.role === 'admin' ? 'Quản trị viên' : 'Sinh viên'}
+              </Text>
+            </View>
           </View>
-        </View>
 
-        {/* Menu items */}
-        <View style={styles.menu}>
-          <TouchableOpacity style={styles.menuItem}>
-            <Ionicons name="person-outline" size={20} color={Ink[500]} />
-            <Text style={styles.menuText}>Chỉnh sửa hồ sơ</Text>
-            <Ionicons name="chevron-forward" size={18} color={Ink[400]} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <Ionicons name="lock-closed-outline" size={20} color={Ink[500]} />
-            <Text style={styles.menuText}>Đổi mật khẩu</Text>
-            <Ionicons name="chevron-forward" size={18} color={Ink[400]} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <Ionicons name="notifications-outline" size={20} color={Ink[500]} />
-            <Text style={styles.menuText}>Thông báo</Text>
-            <Ionicons name="chevron-forward" size={18} color={Ink[400]} />
-          </TouchableOpacity>
-        </View>
+          {/* Menu items */}
+          <View style={styles.menu}>
+            <TouchableOpacity style={styles.menuItem}>
+              <Ionicons name="person-outline" size={20} color={Ink[500]} />
+              <Text style={styles.menuText}>Chỉnh sửa hồ sơ</Text>
+              <Ionicons name="chevron-forward" size={18} color={Ink[400]} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}>
+              <Ionicons name="lock-closed-outline" size={20} color={Ink[500]} />
+              <Text style={styles.menuText}>Đổi mật khẩu</Text>
+              <Ionicons name="chevron-forward" size={18} color={Ink[400]} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}>
+              <Ionicons name="notifications-outline" size={20} color={Ink[500]} />
+              <Text style={styles.menuText}>Thông báo</Text>
+              <Ionicons name="chevron-forward" size={18} color={Ink[400]} />
+            </TouchableOpacity>
+          </View>
 
-        {/* Logout */}
-        <Button
-          title="Đăng xuất"
-          onPress={handleLogout}
-          variant="outline"
-          size="lg"
-          icon={<Ionicons name="log-out-outline" size={18} color={Ink[700]} />}
-          style={styles.logoutBtn}
-        />
-      </View>
+          {/* Logout */}
+          <Button
+            title="Đăng xuất"
+            onPress={handleLogout}
+            variant="outline"
+            size="lg"
+            icon={<Ionicons name="log-out-outline" size={18} color={Ink[700]} />}
+            style={styles.logoutBtn}
+          />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -116,9 +121,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: Spacing.md,
   },
+  scrollContent: {
+    flexGrow: 1,
+  },
   content: {
     flex: 1,
     padding: Spacing.xl,
+    paddingBottom: 120,
   },
   profileCard: {
     alignItems: 'center',

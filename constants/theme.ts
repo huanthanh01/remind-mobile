@@ -12,6 +12,7 @@ export const Brand = {
   600: '#23817D',
   500: '#2A9D8F',
   300: '#76C7BD',
+  200: '#A1D9D3',
   100: '#DDF1EF',
   '050': '#EFF8F7',
 } as const;
@@ -27,6 +28,7 @@ export const CalmBlue = {
 export const Ink = {
   900: '#172A2A',
   700: '#365252',
+  600: '#4A6363',
   500: '#617878',
   400: '#7A9090',
   300: '#9DB3B3',
