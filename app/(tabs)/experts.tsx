@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -10,19 +10,26 @@ import {
   Modal,
   ActivityIndicator,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Brand, Ink, Surface, Radius, FontSize, FontWeight, Spacing, Shadow } from '../../constants/theme';
 import { ExpertService, MobileExpert, MobileExpertSlot } from '../../services/expert.service';
+import { useAuth } from '../../stores/auth.store';
 import Button from '../../components/common/Button';
 import Avatar from '../../components/common/Avatar';
+import AuthModal from '../../components/common/AuthModal';
 
 const SPECIALTIES = ['Tất cả', 'Trầm cảm', 'Lo âu', 'Stress công việc', 'Mối quan hệ', 'LGBTQ+'];
 const LANGUAGES = ['Tất cả', 'Tiếng Việt', 'Tiếng Anh'];
 const COSTS = ['Tất cả', 'Miễn phí', '< 500k', '>= 500k'];
 
 export default function ExpertsScreen() {
+  const { isAuthenticated } = useAuth();
+  const [authModalVisible, setAuthModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
   const [experts, setExperts] = useState<MobileExpert[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,12 +48,26 @@ export default function ExpertsScreen() {
     loadExperts();
   }, []);
 
-  const loadExperts = async () => {
-    setLoading(true);
-    const data = await ExpertService.getApprovedExperts();
-    setExperts(data);
-    setLoading(false);
+  const loadExperts = async (isRef = false) => {
+    if (isRef) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+    try {
+      const data = await ExpertService.getApprovedExperts();
+      setExperts(data);
+    } catch (err) {
+      console.error('Error loading experts:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   };
+
+  const onRefresh = useCallback(() => {
+    loadExperts(true);
+  }, []);
 
   const filteredExperts = experts.filter((e) => {
     const nameMatch = (e.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -69,6 +90,10 @@ export default function ExpertsScreen() {
   });
 
   const handleOpenBooking = async (expert: MobileExpert) => {
+    if (!isAuthenticated) {
+      setAuthModalVisible(true);
+      return;
+    }
     setBookingExpert(expert);
     setSelectedSlotId('');
     setSlots([]);
@@ -90,7 +115,13 @@ export default function ExpertsScreen() {
         await ExpertService.createPayment(apptId);
       }
       Alert.alert('Đặt lịch thành công', 'Lịch hẹn của bạn đã được ghi nhận thành công!', [
-        { text: 'OK', onPress: () => setBookingExpert(null) },
+        {
+          text: 'OK',
+          onPress: () => {
+            setBookingExpert(null);
+            loadExperts();
+          },
+        },
       ]);
     } catch (err: any) {
       Alert.alert('Thông báo', err.response?.data?.error || 'Có lỗi xảy ra khi đặt lịch');
@@ -132,9 +163,11 @@ export default function ExpertsScreen() {
         )}
       </View>
 
-      {/* Filters Horizontal Scroll */}
+      {/* Filters Horizontal Scrolls */}
       <View style={styles.filterSection}>
+        {/* Specialty Filter */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
+          <Text style={styles.filterLabel}>Chuyên môn:</Text>
           {SPECIALTIES.map((spec) => (
             <TouchableOpacity
               key={spec}
@@ -147,6 +180,38 @@ export default function ExpertsScreen() {
             </TouchableOpacity>
           ))}
         </ScrollView>
+
+        {/* Language Filter */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll} style={{ marginTop: Spacing.xs }}>
+          <Text style={styles.filterLabel}>Ngôn ngữ:</Text>
+          {LANGUAGES.map((lang) => (
+            <TouchableOpacity
+              key={lang}
+              style={[styles.chip, selectedLanguage === lang && styles.chipActive]}
+              onPress={() => setSelectedLanguage(lang)}
+            >
+              <Text style={[styles.chipText, selectedLanguage === lang && styles.chipTextActive]}>
+                {lang}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* Cost Filter */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll} style={{ marginTop: Spacing.xs }}>
+          <Text style={styles.filterLabel}>Chi phí:</Text>
+          {COSTS.map((cost) => (
+            <TouchableOpacity
+              key={cost}
+              style={[styles.chip, selectedCost === cost && styles.chipActive]}
+              onPress={() => setSelectedCost(cost)}
+            >
+              <Text style={[styles.chipText, selectedCost === cost && styles.chipTextActive]}>
+                {cost}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
 
       {/* List */}
@@ -155,17 +220,29 @@ export default function ExpertsScreen() {
           <ActivityIndicator size="large" color={Brand[700]} />
           <Text style={styles.loadingText}>Đang tải danh sách chuyên gia...</Text>
         </View>
-      ) : filteredExperts.length === 0 ? (
-        <View style={styles.centerBox}>
-          <Ionicons name="search-outline" size={48} color={Ink[300]} />
-          <Text style={styles.emptyTitle}>Không tìm thấy chuyên gia</Text>
-          <Text style={styles.emptyDesc}>Thử tìm kiếm với từ khóa khác hoặc bỏ lọc</Text>
-        </View>
       ) : (
         <FlatList
           data={filteredExperts}
           keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.listContainer}
+          contentContainerStyle={[
+            styles.listContainer,
+            filteredExperts.length === 0 && { flexGrow: 1, justifyContent: 'center' }
+          ]}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[Brand[700]]}
+              tintColor={Brand[700]}
+            />
+          }
+          ListEmptyComponent={
+            <View style={styles.centerBox}>
+              <Ionicons name="search-outline" size={48} color={Ink[300]} />
+              <Text style={styles.emptyTitle}>Không tìm thấy chuyên gia</Text>
+              <Text style={styles.emptyDesc}>Thử tìm kiếm với từ khóa khác hoặc bỏ lọc</Text>
+            </View>
+          }
           renderItem={({ item }) => (
             <View style={styles.expertCard}>
               <View style={styles.cardHeader}>
@@ -272,6 +349,14 @@ export default function ExpertsScreen() {
           </View>
         </Modal>
       )}
+
+      {/* Auth Modal */}
+      <AuthModal
+        visible={authModalVisible}
+        onClose={() => setAuthModalVisible(false)}
+        title="Yêu cầu Đăng nhập"
+        message="Vui lòng đăng nhập bằng tài khoản học viên để thực hiện đặt lịch hẹn tư vấn với chuyên gia tâm lý."
+      />
     </SafeAreaView>
   );
 }
@@ -322,6 +407,14 @@ const styles = StyleSheet.create({
   filterScroll: {
     paddingHorizontal: Spacing.lg,
     gap: Spacing.xs,
+  },
+  filterLabel: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.semibold,
+    color: Ink[500],
+    alignSelf: 'center',
+    marginRight: Spacing.xs,
+    minWidth: 70,
   },
   chip: {
     paddingHorizontal: Spacing.md,
