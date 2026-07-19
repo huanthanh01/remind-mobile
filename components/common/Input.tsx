@@ -3,13 +3,15 @@
  * Maps to .login-input-box from web CSS.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   TextInput as RNTextInput,
   Text,
   StyleSheet,
   TouchableOpacity,
+  Pressable,
+  Platform,
   TextInputProps as RNTextInputProps,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,14 +32,26 @@ export default function Input({
   rightIcon,
   onRightIconPress,
   style,
+  onFocus,
+  onBlur,
   ...rest
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<RNTextInput>(null);
+
+  const handlePressWrapper = () => {
+    inputRef.current?.focus();
+  };
 
   return (
     <View style={styles.container}>
-      {label && <Text style={styles.label}>{label}</Text>}
-      <View
+      {label && (
+        <Text style={styles.label} onPress={handlePressWrapper}>
+          {label}
+        </Text>
+      )}
+      <Pressable
+        onPress={handlePressWrapper}
         style={[
           styles.inputWrapper,
           isFocused && styles.focused,
@@ -53,22 +67,29 @@ export default function Input({
           />
         )}
         <RNTextInput
-          style={[styles.input, style]}
+          ref={inputRef}
+          style={[
+            styles.input,
+            Platform.OS === 'web' && ({ outlineStyle: 'none' } as any),
+            style,
+          ]}
           placeholderTextColor={Ink[400]}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={(e) => {
+            setIsFocused(true);
+            onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setIsFocused(false);
+            onBlur?.(e);
+          }}
           {...rest}
         />
         {rightIcon && (
-          <TouchableOpacity onPress={onRightIconPress} style={styles.rightIcon}>
-            <Ionicons
-              name={rightIcon}
-              size={20}
-              color={Ink[400]}
-            />
+          <TouchableOpacity onPress={onRightIconPress} style={styles.rightIcon} activeOpacity={0.7}>
+            <Ionicons name={rightIcon} size={20} color={Ink[400]} />
           </TouchableOpacity>
         )}
-      </View>
+      </Pressable>
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );

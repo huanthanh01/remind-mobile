@@ -1,56 +1,57 @@
-/**
- * Value proposition section – 3 cards showing core features.
- * Maps to web .home-values section.
- */
-
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Brand, Ink, Surface, CalmBlue, Spacing, Radius, FontSize, FontWeight, Shadow } from '../../constants/theme';
+import { Brand, CalmBlue, Ink, Surface, Spacing, Radius, FontSize, FontWeight } from '../../constants/theme';
 
 const VALUES = [
   {
-    icon: 'chatbubbles-outline' as const,
-    iconBg: '#EEF2FF',
-    iconColor: '#6366F1',
+    icon: 'chatbubble-ellipses-outline' as const,
+    iconColor: Brand[700],
+    bg: Brand['050'],
     title: 'AI Chat 24/7',
-    desc: 'Sơ cứu tâm lý tức thời vào bất kể khung giờ nào. Hoàn toàn miễn phí, đưa ra lời khuyên khoa học và bài tập thư giãn.',
+    desc: 'Sơ cứu tâm lý, lời khuyên khoa học, hoàn toàn miễn phí.',
   },
   {
     icon: 'lock-closed-outline' as const,
-    iconBg: '#ECFDF5',
-    iconColor: '#059669',
+    iconColor: CalmBlue[600],
+    bg: CalmBlue['050'],
     title: 'Ẩn danh tuyệt đối',
-    desc: 'Hệ thống bảo mật băm dữ liệu và phân quyền chặt chẽ. Bạn thoải mái chia sẻ ở Diễn đàn với bộ lọc từ khóa văn minh.',
+    desc: 'Bảo mật 100%, tự do chia sẻ tại Góc tâm sự.',
   },
   {
     icon: 'medkit-outline' as const,
-    iconBg: '#FFFBEB',
-    iconColor: '#D97706',
-    title: 'Chuyên gia thấu hiểu',
-    desc: 'Đội ngũ bác sĩ thật được kiểm định bằng cấp kỹ càng. AI sẽ tóm tắt trước lịch sử cảm xúc giúp giảm thời gian chẩn đoán.',
+    iconColor: Brand[600],
+    bg: Brand[100],
+    title: 'Chuyên gia uy tín',
+    desc: 'Kết nối bác sĩ, chuyên gia tâm lý đã kiểm duyệt.',
   },
 ];
 
 export default function ValueProposition() {
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>
-        An toàn hơn — Tiết kiệm hơn — Thấu hiểu hơn
-      </Text>
-      <Text style={styles.subheading}>
-        Hệ sinh thái thông minh giúp bạn gạt bỏ hoàn toàn rào cản e ngại khi đi
-        chăm sóc sức khỏe tinh thần.
-      </Text>
+      {/* Title with subtle divider line */}
+      <View style={styles.headingRow}>
+        <Text style={styles.heading}>Giá trị cốt lõi</Text>
+        <View style={styles.dividerLine} />
+      </View>
 
-      <View style={styles.grid}>
-        {VALUES.map((item) => (
-          <View key={item.title} style={styles.card}>
-            <View style={[styles.iconCircle, { backgroundColor: item.iconBg }]}>
-              <Ionicons name={item.icon} size={24} color={item.iconColor} />
+      <View style={styles.list}>
+        {VALUES.map((item, index) => (
+          <View
+            key={item.title}
+            style={[
+              styles.itemRow,
+              index < VALUES.length - 1 && styles.borderBottom,
+            ]}
+          >
+            <View style={[styles.colorBlock, { backgroundColor: item.bg }]}>
+              <Ionicons name={item.icon} size={20} color={item.iconColor} />
             </View>
-            <Text style={styles.cardTitle}>{item.title}</Text>
-            <Text style={styles.cardDesc}>{item.desc}</Text>
+            <View style={styles.textContainer}>
+              <Text style={styles.itemTitle}>{item.title}</Text>
+              <Text style={styles.itemDesc}>{item.desc}</Text>
+            </View>
           </View>
         ))}
       </View>
@@ -61,51 +62,57 @@ export default function ValueProposition() {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing['3xl'],
-    backgroundColor: Surface.muted,
+    paddingVertical: Spacing.xl,
+    backgroundColor: Surface.canvas,
+  },
+  headingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+    gap: Spacing.md,
   },
   heading: {
-    fontSize: FontSize.xl,
+    fontSize: FontSize.md,
     fontWeight: FontWeight.bold,
     color: Ink[900],
-    textAlign: 'center',
-    marginBottom: Spacing.sm,
   },
-  subheading: {
-    fontSize: FontSize.sm,
-    color: Ink[500],
-    textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: Spacing.xl,
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Surface.border,
   },
-  grid: {
-    gap: Spacing.base,
+  list: {
+    gap: 0,
   },
-  card: {
-    backgroundColor: Surface.white,
-    borderRadius: Radius.xl,
-    padding: Spacing.lg,
-    ...Shadow.sm,
-    borderWidth: 1,
-    borderColor: Surface.border,
+  itemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+    gap: Spacing.md,
   },
-  iconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  borderBottom: {
+    borderBottomWidth: 1,
+    borderBottomColor: Surface.border,
+  },
+  colorBlock: {
+    width: 44,
+    height: 44,
+    borderRadius: Radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing.md,
   },
-  cardTitle: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
+  textContainer: {
+    flex: 1,
+  },
+  itemTitle: {
+    fontSize: FontSize.base,
+    fontWeight: FontWeight.bold,
     color: Ink[900],
-    marginBottom: Spacing.sm,
+    marginBottom: 3,
   },
-  cardDesc: {
-    fontSize: FontSize.sm,
+  itemDesc: {
+    fontSize: FontSize.xs + 0.5,
     color: Ink[500],
-    lineHeight: 20,
+    lineHeight: 18,
   },
 });

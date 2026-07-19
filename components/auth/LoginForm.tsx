@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Brand, Ink, Surface, Semantic, Spacing, Radius, FontSize, FontWeight, Shadow } from '../../constants/theme';
 import Input from '../common/Input';
 import Button from '../common/Button';
@@ -14,6 +14,7 @@ interface LoginFormProps {
   onSubmit: (identifier: string, password: string) => Promise<void>;
   onSwitchToRegister: () => void;
   onForgotPassword?: () => void;
+  onGoBack?: () => void;
   isLoading: boolean;
   globalError?: string;
 }
@@ -22,6 +23,7 @@ export default function LoginForm({
   onSubmit,
   onSwitchToRegister,
   onForgotPassword,
+  onGoBack,
   isLoading,
   globalError,
 }: LoginFormProps) {
@@ -51,10 +53,24 @@ export default function LoginForm({
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
+      {/* Top Bar with Back Button */}
+      <View style={styles.topBar}>
+        {onGoBack && (
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={onGoBack}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="arrow-back" size={20} color={Ink[700]} />
+            <Text style={styles.backBtnText}>Trang chủ</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
       {/* Brand header */}
       <View style={styles.brandHeader}>
         <View style={styles.brandIcon}>
-          <Ionicons name="leaf" size={28} color="#fff" />
+          <MaterialCommunityIcons name="brain" size={34} color="#ffffff" />
         </View>
         <Text style={styles.brandName}>ReMind</Text>
         <Text style={styles.brandTagline}>Nền tảng hỗ trợ tâm lý</Text>
@@ -132,17 +148,41 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing['4xl'],
+    paddingTop: Spacing.lg,
     paddingBottom: Spacing['2xl'],
+  },
+  topBar: {
+    minHeight: 44,
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+    marginTop: Spacing.xs,
+  },
+  backBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: Radius.lg,
+    backgroundColor: Surface.white,
+    borderWidth: 1,
+    borderColor: Surface.border,
+    alignSelf: 'flex-start',
+    ...Shadow.sm,
+  },
+  backBtnText: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.medium,
+    color: Ink[700],
   },
   brandHeader: {
     alignItems: 'center',
-    marginBottom: Spacing['3xl'],
+    marginBottom: Spacing['2xl'],
   },
   brandIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
+    width: 64,
+    height: 64,
+    borderRadius: 20,
     backgroundColor: Brand[700],
     alignItems: 'center',
     justifyContent: 'center',
@@ -150,9 +190,10 @@ const styles = StyleSheet.create({
     ...Shadow.md,
   },
   brandName: {
-    fontSize: FontSize['2xl'],
+    fontSize: FontSize['3xl'],
     fontWeight: FontWeight.bold,
     color: Brand[700],
+    letterSpacing: -0.5,
   },
   brandTagline: {
     fontSize: FontSize.sm,

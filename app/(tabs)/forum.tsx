@@ -21,6 +21,7 @@ import PostCard from '../../components/forum/PostCard';
 import CreatePostModal from '../../components/forum/CreatePostModal';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import EmptyState from '../../components/common/EmptyState';
+import AuthModal from '../../components/common/AuthModal';
 import type { PostType } from '../../stores/types';
 import { Brand, Ink, Surface, Spacing, Radius, FontSize, FontWeight, Shadow } from '../../constants/theme';
 
@@ -40,6 +41,7 @@ export default function ForumScreen() {
   const [isSearching, setIsSearching] = useState(false);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [authModalVisible, setAuthModalVisible] = useState(false);
 
   const fetchPosts = async (page: number, replace = false) => {
     try {
@@ -101,12 +103,16 @@ export default function ForumScreen() {
   };
 
   const handlePostPress = (postId: string) => {
+    if (!isAuthenticated) {
+      setAuthModalVisible(true);
+      return;
+    }
     router.push(`/forum/${postId}`);
   };
 
   const handleCreatePost = () => {
     if (!isAuthenticated) {
-      router.push('/(auth)/login');
+      setAuthModalVisible(true);
       return;
     }
     setShowCreateModal(true);
@@ -186,6 +192,14 @@ export default function ForumScreen() {
         visible={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onPostCreated={() => fetchPosts(1, true)}
+      />
+
+      {/* Auth Modal for guest */}
+      <AuthModal
+        visible={authModalVisible}
+        onClose={() => setAuthModalVisible(false)}
+        title="Tính năng dành cho thành viên"
+        message="Vui lòng đăng nhập hoặc tạo tài khoản để đọc chi tiết bài viết và tham gia thảo luận cùng cộng đồng."
       />
     </SafeAreaView>
   );
