@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Brand, Ink, Surface, Semantic, Spacing, Radius, FontSize, FontWeight, Shadow } from '../../constants/theme';
 import Input from '../common/Input';
 import Button from '../common/Button';
@@ -18,6 +18,7 @@ interface RegisterFormProps {
     role: 'student' | 'expert';
   }) => Promise<void>;
   onSwitchToLogin: () => void;
+  onGoBack?: () => void;
   isLoading: boolean;
   globalError?: string;
 }
@@ -25,6 +26,7 @@ interface RegisterFormProps {
 export default function RegisterForm({
   onSubmit,
   onSwitchToLogin,
+  onGoBack,
   isLoading,
   globalError,
 }: RegisterFormProps) {
@@ -60,13 +62,27 @@ export default function RegisterForm({
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
+      {/* Top Bar with Back Button */}
+      <View style={styles.topBar}>
+        {onGoBack && (
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={onGoBack}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="arrow-back" size={20} color={Ink[700]} />
+            <Text style={styles.backBtnText}>Trang chủ</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
       {/* Brand header */}
       <View style={styles.brandHeader}>
         <View style={styles.brandIcon}>
-          <Ionicons name="leaf" size={28} color="#fff" />
+          <MaterialCommunityIcons name="brain" size={34} color="#ffffff" />
         </View>
         <Text style={styles.brandName}>ReMind</Text>
-        <Text style={styles.brandTagline}>Tạo tài khoản mới</Text>
+        <Text style={styles.brandTagline}>Nền tảng hỗ trợ tâm lý</Text>
       </View>
 
       <View style={styles.formContainer}>
@@ -81,6 +97,31 @@ export default function RegisterForm({
             <Text style={styles.errorBannerText}>{globalError}</Text>
           </View>
         )}
+
+        {/* Role selector - placed at top of form, text-only */}
+        <View style={styles.roleContainer}>
+          <Text style={styles.roleLabel}>Bạn là:</Text>
+          <View style={styles.roleRow}>
+            <TouchableOpacity
+              style={[styles.roleBtn, role === 'student' && styles.roleBtnActive]}
+              onPress={() => setRole('student')}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.roleBtnText, role === 'student' && styles.roleBtnTextActive]}>
+                Sinh viên
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.roleBtn, role === 'expert' && styles.roleBtnActive]}
+              onPress={() => setRole('expert')}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.roleBtnText, role === 'expert' && styles.roleBtnTextActive]}>
+                Chuyên gia
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
         <Input
           placeholder="Họ và tên"
@@ -133,37 +174,6 @@ export default function RegisterForm({
           secureTextEntry={!showPassword}
         />
 
-        {/* Role selector */}
-        <Text style={styles.roleLabel}>Bạn là:</Text>
-        <View style={styles.roleRow}>
-          <TouchableOpacity
-            style={[styles.roleBtn, role === 'student' && styles.roleBtnActive]}
-            onPress={() => setRole('student')}
-          >
-            <Ionicons
-              name="school-outline"
-              size={18}
-              color={role === 'student' ? '#fff' : Ink[500]}
-            />
-            <Text style={[styles.roleBtnText, role === 'student' && styles.roleBtnTextActive]}>
-              Sinh viên
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.roleBtn, role === 'expert' && styles.roleBtnActive]}
-            onPress={() => setRole('expert')}
-          >
-            <Ionicons
-              name="medical-outline"
-              size={18}
-              color={role === 'expert' ? '#fff' : Ink[500]}
-            />
-            <Text style={[styles.roleBtnText, role === 'expert' && styles.roleBtnTextActive]}>
-              Chuyên gia
-            </Text>
-          </TouchableOpacity>
-        </View>
-
         <Button
           title="Đăng ký"
           onPress={handleSubmit}
@@ -188,17 +198,41 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing['3xl'],
+    paddingTop: Spacing.lg,
     paddingBottom: Spacing['2xl'],
+  },
+  topBar: {
+    minHeight: 44,
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+    marginTop: Spacing.xs,
+  },
+  backBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: Radius.lg,
+    backgroundColor: Surface.white,
+    borderWidth: 1,
+    borderColor: Surface.border,
+    alignSelf: 'flex-start',
+    ...Shadow.sm,
+  },
+  backBtnText: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.medium,
+    color: Ink[700],
   },
   brandHeader: {
     alignItems: 'center',
     marginBottom: Spacing['2xl'],
   },
   brandIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
+    width: 64,
+    height: 64,
+    borderRadius: 20,
     backgroundColor: Brand[700],
     alignItems: 'center',
     justifyContent: 'center',
@@ -206,9 +240,10 @@ const styles = StyleSheet.create({
     ...Shadow.md,
   },
   brandName: {
-    fontSize: FontSize['2xl'],
+    fontSize: FontSize['3xl'],
     fontWeight: FontWeight.bold,
     color: Brand[700],
+    letterSpacing: -0.5,
   },
   brandTagline: {
     fontSize: FontSize.sm,
@@ -232,7 +267,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: FontSize.sm,
     color: Ink[500],
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.md,
   },
   errorBanner: {
     flexDirection: 'row',
@@ -250,40 +285,41 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Semantic.error,
   },
+  roleContainer: {
+    marginBottom: Spacing.lg,
+  },
   roleLabel: {
     fontSize: FontSize.sm,
     fontWeight: FontWeight.medium,
     color: Ink[700],
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
   roleRow: {
     flexDirection: 'row',
-    gap: Spacing.md,
-    marginBottom: Spacing.xl,
+    backgroundColor: Surface.canvas,
+    borderRadius: Radius.lg,
+    padding: 4,
+    borderWidth: 1,
+    borderColor: Surface.border,
   },
   roleBtn: {
     flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: Spacing.sm,
-    paddingVertical: Spacing.md,
-    borderRadius: Radius.lg,
-    borderWidth: 1,
-    borderColor: Surface.border,
-    backgroundColor: Surface.white,
+    paddingVertical: Spacing.sm + 2,
+    borderRadius: Radius.md,
   },
   roleBtnActive: {
     backgroundColor: Brand[700],
-    borderColor: Brand[700],
   },
   roleBtnText: {
     fontSize: FontSize.sm,
     fontWeight: FontWeight.medium,
-    color: Ink[500],
+    color: Ink[600],
   },
   roleBtnTextActive: {
     color: '#FFFFFF',
+    fontWeight: FontWeight.semibold,
   },
   submitBtn: {
     marginTop: Spacing.sm,

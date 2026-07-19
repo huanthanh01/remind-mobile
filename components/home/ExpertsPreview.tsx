@@ -1,33 +1,48 @@
-/**
- * Experts preview section – 3 sample expert cards.
- * Maps to web .home-experts-preview.
- */
-
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Brand, Ink, Surface, Spacing, Radius, FontSize, FontWeight, Shadow } from '../../constants/theme';
-import Avatar from '../common/Avatar';
-import Badge from '../common/Badge';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { Brand, CalmBlue, Ink, Surface, Spacing, Radius, FontSize, FontWeight, Shadow } from '../../constants/theme';
 
-const MOCK_EXPERTS = [
+/**
+ * 3 Real Experts seeded in Database (see remind-backend/scripts/seedExperts.ts):
+ * 1. TS. Nguyễn Thị Nga - Bác sĩ Tâm lý lâm sàng
+ * 2. ThS. Lê Văn Minh - Tư vấn viên Tâm lý
+ * 3. Dr. Phạm Thu Linh - Nhà trị liệu LGBTQ+
+ * 
+ * Styled strictly according to DESIGN.md palette (Teal & Soft Blue, 8px radii).
+ */
+const DB_EXPERTS = [
   {
     id: '1',
-    name: 'ThS. BS. Nguyễn Văn A',
-    title: 'Chuyên gia Tâm lý học Lâm sàng',
+    initials: 'NN',
+    name: 'TS. Nguyễn Thị Nga',
+    title: 'Tâm lý học lâm sàng',
     tags: ['Trầm cảm', 'Rối loạn lo âu'],
+    accentColor: Brand[700],
+    avatarBg: Brand['050'],
+    tagBg: Brand[100],
+    tagText: Brand[700],
   },
   {
     id: '2',
-    name: 'ThS. Trần Thị B',
-    title: 'Cố vấn Tâm lý Học đường',
-    tags: ['Áp lực đồng lứa', 'Định hướng'],
+    initials: 'LM',
+    name: 'ThS. Lê Văn Minh',
+    title: 'Tư vấn viên Tâm lý',
+    tags: ['Stress công việc', 'Mối quan hệ'],
+    accentColor: CalmBlue[600],
+    avatarBg: CalmBlue['050'],
+    tagBg: CalmBlue[100],
+    tagText: CalmBlue[600],
   },
   {
     id: '3',
-    name: 'BS. Lê Hoàng C',
-    title: 'Chuyên gia Trị liệu Gia đình',
-    tags: ['Mâu thuẫn', 'Giao tiếp'],
+    initials: 'PL',
+    name: 'Dr. Phạm Thu Linh',
+    title: 'Nhà trị liệu LGBTQ+',
+    tags: ['LGBTQ+', 'Lo âu'],
+    accentColor: Brand[600],
+    avatarBg: Brand['050'],
+    tagBg: Brand[100],
+    tagText: Brand[600],
   },
 ];
 
@@ -38,105 +53,131 @@ interface ExpertsPreviewProps {
 export default function ExpertsPreview({ onViewAll }: ExpertsPreviewProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Đội ngũ chuyên gia hàng đầu</Text>
-      <Text style={styles.subheading}>
-        Các bác sĩ, thạc sĩ tâm lý học với nhiều năm kinh nghiệm luôn sẵn sàng
-        đồng hành cùng bạn.
-      </Text>
+      {/* Header with Title and "Xem tất cả →" link */}
+      <View style={styles.headerRow}>
+        <Text style={styles.heading}>Đội ngũ chuyên gia</Text>
+        <TouchableOpacity onPress={onViewAll} activeOpacity={0.7}>
+          <Text style={styles.viewAllLink}>Xem tất cả →</Text>
+        </TouchableOpacity>
+      </View>
 
-      <View style={styles.grid}>
-        {MOCK_EXPERTS.map((expert) => (
+      {/* Horizontal Carousel of Expert Cards */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.carouselContent}
+      >
+        {DB_EXPERTS.map((expert) => (
           <View key={expert.id} style={styles.card}>
-            <Avatar name={expert.name} size={48} />
-            <View style={styles.info}>
+            {/* Top accent bar line */}
+            <View style={[styles.topBar, { backgroundColor: expert.accentColor }]} />
+
+            <View style={styles.cardContent}>
+              <View style={[styles.avatar, { backgroundColor: expert.avatarBg }]}>
+                <Text style={[styles.avatarText, { color: expert.accentColor }]}>
+                  {expert.initials}
+                </Text>
+              </View>
+
               <Text style={styles.expertName}>{expert.name}</Text>
               <Text style={styles.expertTitle}>{expert.title}</Text>
-              <View style={styles.tags}>
+
+              <View style={styles.tagsRow}>
                 {expert.tags.map((tag) => (
-                  <Badge key={tag} text={tag} variant="brand" />
+                  <View key={tag} style={[styles.tagBadge, { backgroundColor: expert.tagBg }]}>
+                    <Text style={[styles.tagText, { color: expert.tagText }]}>
+                      {tag}
+                    </Text>
+                  </View>
                 ))}
               </View>
             </View>
           </View>
         ))}
-      </View>
-
-      <TouchableOpacity style={styles.viewAllBtn} onPress={onViewAll}>
-        <Text style={styles.viewAllText}>Xem tất cả chuyên gia</Text>
-        <Ionicons name="arrow-forward" size={16} color={Brand[700]} />
-      </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    paddingVertical: Spacing.xl,
+    backgroundColor: Surface.canvas,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing['3xl'],
-    backgroundColor: Surface.muted,
+    marginBottom: Spacing.lg,
   },
   heading: {
-    fontSize: FontSize.xl,
+    fontSize: FontSize['2xl'],
     fontWeight: FontWeight.bold,
     color: Ink[900],
-    textAlign: 'center',
-    marginBottom: Spacing.sm,
+    letterSpacing: 0,
   },
-  subheading: {
+  viewAllLink: {
     fontSize: FontSize.sm,
-    color: Ink[500],
-    textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: Spacing.xl,
+    fontWeight: FontWeight.semibold,
+    color: Brand[700],
   },
-  grid: {
+  carouselContent: {
+    paddingHorizontal: Spacing.xl,
     gap: Spacing.md,
   },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    width: 240,
     backgroundColor: Surface.white,
-    borderRadius: Radius.xl,
-    padding: Spacing.base,
-    gap: Spacing.md,
-    ...Shadow.sm,
+    borderRadius: Radius.md, // 8px radius per DESIGN.md shape lock
+    overflow: 'hidden',
     borderWidth: 1,
     borderColor: Surface.border,
+    ...Shadow.sm,
   },
-  info: {
-    flex: 1,
+  topBar: {
+    height: 3,
+    width: '100%',
+  },
+  cardContent: {
+    padding: Spacing.base,
+    alignItems: 'flex-start',
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: Radius.md, // 8px radius for expert images per DESIGN.md
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+  },
+  avatarText: {
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.bold,
   },
   expertName: {
     fontSize: FontSize.base,
-    fontWeight: FontWeight.semibold,
+    fontWeight: FontWeight.bold,
     color: Ink[900],
+    marginBottom: 2,
   },
   expertTitle: {
-    fontSize: FontSize.xs,
+    fontSize: FontSize.xs + 0.5,
     color: Ink[500],
-    marginTop: 2,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
   },
-  tags: {
+  tagsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.xs,
   },
-  viewAllBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.sm,
-    marginTop: Spacing.xl,
-    paddingVertical: Spacing.md,
-    borderWidth: 1,
-    borderColor: Brand[100],
-    borderRadius: Radius.lg,
-    backgroundColor: Brand['050'],
+  tagBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: Radius.md, // 8px radius per DESIGN.md chip rules
   },
-  viewAllText: {
-    fontSize: FontSize.base,
-    fontWeight: FontWeight.semibold,
-    color: Brand[700],
+  tagText: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.medium,
   },
 });

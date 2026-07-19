@@ -70,7 +70,7 @@ export const AuthService = {
         await apiHelper.post(API_ENDPOINTS.AUTH.LOGOUT, { refreshToken });
       }
     } catch (error) {
-      console.error('Lỗi khi đăng xuất:', error);
+      console.warn('Lỗi khi đăng xuất:', error);
     } finally {
       await clearAuthTokens();
     }

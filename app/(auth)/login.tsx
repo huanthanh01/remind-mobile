@@ -3,7 +3,7 @@
  */
 
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView, StyleSheet, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../stores/auth.store';
 import LoginForm from '../../components/auth/LoginForm';
@@ -32,14 +32,15 @@ export default function LoginScreen() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <LoginForm
           onSubmit={handleLogin}
           onSwitchToRegister={() => router.push('/(auth)/register')}
           onForgotPassword={() => {
-            // TODO: implement forgot password screen
+            router.push('/(auth)/forgot-password' as any);
           }}
+          onGoBack={() => router.replace('/(tabs)')}
           isLoading={isLoading}
           globalError={globalError}
         />
@@ -52,6 +53,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Surface.canvas,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 16 : Platform.OS === 'web' ? 24 : 12,
   },
   flex: {
     flex: 1,

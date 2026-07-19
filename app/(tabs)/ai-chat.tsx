@@ -3,7 +3,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { View, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, FlatList, StyleSheet, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../stores/auth.store';
@@ -14,7 +14,7 @@ import SuggestionChips from '../../components/ai-chat/SuggestionChips';
 import TypingIndicator from '../../components/ai-chat/TypingIndicator';
 import WelcomeBanner from '../../components/ai-chat/WelcomeBanner';
 import type { AIChatMessage } from '../../stores/types';
-import { Surface } from '../../constants/theme';
+import { Brand, Ink, Surface, Spacing, FontSize, FontWeight } from '../../constants/theme';
 
 const INITIAL_MESSAGES: AIChatMessage[] = [
   {
@@ -38,7 +38,25 @@ export default function AIChatScreen() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const flatListRef = useRef<FlatList>(null);
+
+  // Keyboard visibility listener to adjust bottom offsets dynamically
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => setIsKeyboardVisible(true)
+    );
+    const hideSubscription = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => setIsKeyboardVisible(false)
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -134,6 +152,12 @@ export default function AIChatScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Header bar to prevent messages from sticking to the top */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Trợ lý AI ReMind</Text>
+        <Text style={styles.headerSubtitle}>Trò chuyện ẩn danh và chia sẻ tâm tư 24/7</Text>
+      </View>
+
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -162,6 +186,7 @@ export default function AIChatScreen() {
           onChangeText={setInputValue}
           onSend={handleSend}
           disabled={isTyping}
+          isKeyboardVisible={isKeyboardVisible}
         />
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -173,10 +198,28 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Surface.canvas,
   },
+  header: {
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.md,
+    backgroundColor: Surface.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Surface.border,
+  },
+  headerTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+    color: Ink[900],
+  },
+  headerSubtitle: {
+    fontSize: FontSize.xs,
+    color: Ink[500],
+    marginTop: 2,
+  },
   flex: {
     flex: 1,
   },
   listContent: {
-    paddingVertical: 8,
+    paddingVertical: 16,
   },
 });

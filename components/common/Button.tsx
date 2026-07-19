@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   ViewStyle,
   TextStyle,
+  StyleProp,
 } from 'react-native';
 import { Brand, Ink, Surface, Radius, FontSize, FontWeight, Spacing } from '../../constants/theme';
 
@@ -25,8 +26,8 @@ interface ButtonProps {
   loading?: boolean;
   disabled?: boolean;
   icon?: React.ReactNode;
-  style?: ViewStyle;
-  textStyle?: TextStyle;
+  style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 }
 
 export default function Button({
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.sm,
-    borderRadius: Radius.lg,
+    borderRadius: Radius.xl,
   },
   disabled: {
     opacity: 0.5,
@@ -96,27 +97,34 @@ const styles = StyleSheet.create({
 });
 
 const sizeStyles: Record<ButtonSize, ViewStyle> = {
-  sm: { paddingHorizontal: Spacing.base, paddingVertical: Spacing.sm },
-  md: { paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md },
-  lg: { paddingHorizontal: Spacing['2xl'], paddingVertical: Spacing.base },
+  sm: { paddingHorizontal: Spacing.base, paddingVertical: Spacing.xs, height: 38 },
+  md: { paddingHorizontal: Spacing.xl, paddingVertical: Spacing.sm, height: 48 },
+  lg: { paddingHorizontal: Spacing['2xl'], paddingVertical: Spacing.md, height: 56, borderRadius: Radius.full },
 };
 
 const sizeTextStyles: Record<ButtonSize, TextStyle> = {
   sm: { fontSize: FontSize.sm },
   md: { fontSize: FontSize.base },
-  lg: { fontSize: FontSize.md },
+  lg: { fontSize: FontSize.md, fontWeight: '700' },
 };
 
 const variantStyles: Record<ButtonVariant, ViewStyle> = {
-  primary: { backgroundColor: Brand[700] },
+  primary: {
+    backgroundColor: Brand[700],
+    elevation: 4,
+    shadowColor: Brand[700],
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+  },
   secondary: {
     backgroundColor: Brand['050'],
-    borderWidth: 1,
-    borderColor: Brand[100],
+    borderWidth: 1.5,
+    borderColor: Brand[200],
   },
   outline: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: Surface.border,
   },
   ghost: { backgroundColor: 'transparent' },

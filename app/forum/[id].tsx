@@ -13,10 +13,12 @@ import Avatar from '../../components/common/Avatar';
 import Badge from '../../components/common/Badge';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import CommentSection from '../../components/forum/CommentSection';
+import AuthModal from '../../components/common/AuthModal';
 import type { PostType, CommentType } from '../../stores/types';
 import { Brand, Ink, Surface, Spacing, Radius, FontSize, FontWeight, Shadow } from '../../constants/theme';
 
 function formatDate(dateStr: string): string {
+  if (!dateStr) return '';
   return new Date(dateStr).toLocaleDateString('vi-VN', {
     day: '2-digit',
     month: '2-digit',
@@ -35,6 +37,7 @@ export default function ForumDetailScreen() {
   const [comments, setComments] = useState<CommentType[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [authModalVisible, setAuthModalVisible] = useState(false);
 
   const fetchData = async () => {
     if (!id) return;
@@ -44,7 +47,7 @@ export default function ForumDetailScreen() {
         ForumService.getComments(id),
       ]);
       setPost(postData);
-      setComments(commentsData);
+      setComments(commentsData || []);
     } catch (err) {
       console.error('Failed to load post detail', err);
     } finally {
@@ -53,8 +56,11 @@ export default function ForumDetailScreen() {
   };
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setAuthModalVisible(true);
+    }
     fetchData();
-  }, [id]);
+  }, [id, isAuthenticated]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -158,10 +164,17 @@ export default function ForumDetailScreen() {
             comments={comments}
             onAddComment={handleAddComment}
             isLoggedIn={isAuthenticated}
-            onLoginRequired={() => router.push('/(auth)/login')}
+            onLoginRequired={() => setAuthModalVisible(true)}
           />
         </View>
       </ScrollView>
+
+      <AuthModal
+        visible={authModalVisible}
+        onClose={() => setAuthModalVisible(false)}
+        title="Tính năng dành cho thành viên"
+        message="Vui lòng đăng nhập hoặc tạo tài khoản để đọc chi tiết bài viết và tham gia thảo luận cùng cộng đồng."
+      />
     </SafeAreaView>
   );
 }

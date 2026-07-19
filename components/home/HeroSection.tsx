@@ -1,93 +1,98 @@
-/**
- * Hero section – maps to web .home-hero
- * "Áp lực này, để ReMind gánh cùng bạn."
- */
-
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Brand, Ink, Surface, FontSize, FontWeight, Spacing, Radius, Shadow } from '../../constants/theme';
-import Button from '../common/Button';
+import { Brand, Ink, Surface, Semantic, FontSize, FontWeight, Spacing, Radius, Shadow } from '../../constants/theme';
 
 interface HeroSectionProps {
   onOpenAIChat: () => void;
   onOpenExpertDirectory: () => void;
 }
 
+const FULL_TEXT = 'Chào bạn, tôi luôn ở đây để lắng nghe. Hôm nay của bạn thế nào? Hãy chia sẻ điều bạn đang trăn trở cùng tôi nhé!';
+
 export default function HeroSection({ onOpenAIChat, onOpenExpertDirectory }: HeroSectionProps) {
+  const [displayText, setDisplayText] = useState('');
+  const [isTyping, setIsTyping] = useState(true);
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    if (isTyping) {
+      if (displayText.length < FULL_TEXT.length) {
+        timer = setTimeout(() => {
+          setDisplayText(FULL_TEXT.slice(0, displayText.length + 1));
+        }, 55);
+      } else {
+        timer = setTimeout(() => setIsTyping(false), 3000);
+      }
+    } else {
+      if (displayText.length > 0) {
+        timer = setTimeout(() => {
+          setDisplayText(FULL_TEXT.slice(0, displayText.length - 1));
+        }, 25);
+      } else {
+        timer = setTimeout(() => setIsTyping(true), 600);
+      }
+    }
+    return () => clearTimeout(timer);
+  }, [displayText, isTyping]);
+
   return (
     <View style={styles.container}>
       {/* Badge */}
       <View style={styles.badge}>
-        <Ionicons name="star" size={14} color={Brand[500]} />
-        <Text style={styles.badgeText}>
-          Nền tảng hỗ trợ tâm lý ẩn danh 24/7 cho Gen Z
-        </Text>
+        <Text style={styles.badgeText}>Sơ cứu tâm lý ẩn danh 24/7</Text>
       </View>
 
       {/* Title */}
       <Text style={styles.title}>
-        Áp lực này, để{' '}
-        <Text style={styles.highlight}>ReMind</Text>
-        {' '}gánh cùng bạn.
+        Áp lực này, để <Text style={styles.highlight}>ReMind</Text> gánh cùng bạn
       </Text>
 
-      {/* Description */}
+      {/* Short Description */}
       <Text style={styles.description}>
-        Không gian hoàn toàn ẩn danh để bạn giải tỏa gánh nặng tinh thần. Sơ cứu
-        tâm lý miễn phí với Trợ lý AI và kết nối Chuyên gia khi bạn cần can thiệp
-        sâu.
+        Giải tỏa gánh nặng tinh thần cùng AI Therapist hoặc kết nối chuyên gia khi bạn cần.
       </Text>
 
       {/* CTA Buttons */}
       <View style={styles.actions}>
-        <Button
-          title="Trò chuyện với AI (Miễn phí)"
+        <TouchableOpacity
+          style={styles.primaryBtn}
           onPress={onOpenAIChat}
-          variant="primary"
-          size="lg"
-          icon={<Ionicons name="chatbubbles" size={18} color="#fff" />}
-        />
-        <Button
-          title="Tìm chuyên gia phù hợp"
+          activeOpacity={0.8}
+        >
+          <Text style={styles.primaryBtnText}>Trò chuyện với AI miễn phí</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.secondaryBtn}
           onPress={onOpenExpertDirectory}
-          variant="secondary"
-          size="lg"
-          icon={<Ionicons name="search" size={18} color={Brand[700]} />}
-        />
+          activeOpacity={0.8}
+        >
+          <Text style={styles.secondaryBtnText}>Tìm chuyên gia phù hợp</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Mini chatbot preview card */}
-      <View style={styles.chatPreview}>
+      {/* AI Therapist preview card (Soft Sage Card) */}
+      <View style={styles.chatCard}>
         <View style={styles.chatHeader}>
-          <View style={styles.chatAvatar}>
-            <Ionicons name="sparkles" size={20} color="#fff" />
+          <View style={styles.chatAvatarContainer}>
+            <View style={styles.chatAvatar}>
+              <Ionicons name="sparkles" size={18} color="#FFFFFF" />
+            </View>
+            <View style={styles.chatAvatarDot} />
           </View>
+
           <View>
             <Text style={styles.chatName}>AI Therapist</Text>
-            <View style={styles.chatStatusRow}>
-              <View style={styles.chatStatusDot} />
-              <Text style={styles.chatStatus}>Đang hoạt động • Luôn ẩn danh</Text>
-            </View>
+            <Text style={styles.chatStatus}>Đang hoạt động · Luôn ẩn danh</Text>
           </View>
         </View>
 
-        <View style={styles.chatMessages}>
-          <View style={styles.botMsg}>
-            <Text style={styles.botMsgText}>
-              Chào bạn, tôi ở đây để lắng nghe. Hôm nay của bạn thế nào?
-            </Text>
-          </View>
-          <View style={styles.userMsg}>
-            <Text style={styles.userMsgText}>
-              Tôi vừa trượt bài kiểm tra, áp lực quá...
-            </Text>
-          </View>
-          <View style={styles.botMsg}>
-            <Text style={styles.botMsgText}>
-              Tôi hiểu cảm giác đó. Hãy cùng thực hiện bài tập thở 4-7-8 nhé? 💚
-            </Text>
-          </View>
+        <View style={styles.msgBubble}>
+          <Text style={styles.msgText}>
+            {displayText}
+            <Text style={styles.cursor}>|</Text>
+          </Text>
         </View>
       </View>
     </View>
@@ -97,118 +102,133 @@ export default function HeroSection({ onOpenAIChat, onOpenExpertDirectory }: Her
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing['2xl'],
-    paddingBottom: Spacing['3xl'],
+    paddingTop: Spacing.xl,
+    paddingBottom: Spacing.xl,
+    backgroundColor: Surface.canvas,
   },
   badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
     alignSelf: 'flex-start',
     backgroundColor: Brand['050'],
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: Radius.full,
-    gap: Spacing.xs,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.md,
     marginBottom: Spacing.lg,
   },
   badgeText: {
     fontSize: FontSize.xs,
-    fontWeight: FontWeight.medium,
+    fontWeight: FontWeight.semibold,
     color: Brand[700],
   },
   title: {
     fontSize: FontSize['3xl'],
     fontWeight: FontWeight.bold,
     color: Ink[900],
-    lineHeight: 38,
+    lineHeight: 36,
     marginBottom: Spacing.base,
+    letterSpacing: 0,
   },
   highlight: {
     color: Brand[700],
   },
   description: {
     fontSize: FontSize.base,
-    color: Ink[500],
-    lineHeight: 24,
+    color: Ink[700],
+    lineHeight: 22,
     marginBottom: Spacing.xl,
   },
   actions: {
     gap: Spacing.md,
     marginBottom: Spacing['2xl'],
   },
-  /* Chat preview card */
-  chatPreview: {
+  primaryBtn: {
+    height: 48,
+    backgroundColor: Brand[700],
+    borderRadius: Radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadow.sm,
+  },
+  primaryBtnText: {
+    fontSize: FontSize.base,
+    fontWeight: FontWeight.semibold,
+    color: '#FFFFFF',
+  },
+  secondaryBtn: {
+    height: 48,
     backgroundColor: Surface.white,
-    borderRadius: Radius.xl,
-    padding: Spacing.base,
-    ...Shadow.md,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Surface.borderStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  secondaryBtnText: {
+    fontSize: FontSize.base,
+    fontWeight: FontWeight.semibold,
+    color: Brand[700],
+  },
+  /* Calm Soft Teal AI Therapist Card */
+  chatCard: {
+    backgroundColor: Brand['050'],
+    borderRadius: Radius.md,
     borderWidth: 1,
     borderColor: Surface.border,
+    padding: Spacing.base,
+    gap: Spacing.md,
   },
   chatHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.md,
-    marginBottom: Spacing.md,
-    paddingBottom: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Surface.border,
+  },
+  chatAvatarContainer: {
+    position: 'relative',
   },
   chatAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 42,
+    height: 42,
+    borderRadius: Radius.full, // Circle avatar per user request
     backgroundColor: Brand[700],
     alignItems: 'center',
     justifyContent: 'center',
   },
+  chatAvatarDot: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 11,
+    height: 11,
+    borderRadius: 6,
+    backgroundColor: Semantic.success,
+    borderWidth: 1.5,
+    borderColor: Brand['050'],
+  },
   chatName: {
     fontSize: FontSize.base,
-    fontWeight: FontWeight.semibold,
+    fontWeight: FontWeight.bold,
     color: Ink[900],
-  },
-  chatStatusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  chatStatusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#22C55E',
   },
   chatStatus: {
     fontSize: FontSize.xs,
     color: Ink[500],
+    marginTop: 1,
   },
-  chatMessages: {
-    gap: Spacing.sm,
-  },
-  botMsg: {
-    alignSelf: 'flex-start',
-    backgroundColor: Brand['050'],
-    borderRadius: Radius.lg,
-    borderTopLeftRadius: Radius.sm,
+  msgBubble: {
+    backgroundColor: Surface.white,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Surface.border,
     padding: Spacing.md,
-    maxWidth: '85%',
   },
-  botMsgText: {
+  msgText: {
     fontSize: FontSize.sm,
-    color: Ink[700],
-    lineHeight: 20,
+    color: Ink[900],
+    lineHeight: 22,
+    minHeight: 64, // Height reserved for multi-line text
   },
-  userMsg: {
-    alignSelf: 'flex-end',
-    backgroundColor: Brand[700],
-    borderRadius: Radius.lg,
-    borderTopRightRadius: Radius.sm,
-    padding: Spacing.md,
-    maxWidth: '85%',
-  },
-  userMsgText: {
-    fontSize: FontSize.sm,
-    color: '#FFFFFF',
-    lineHeight: 20,
+  cursor: {
+    color: Brand[700],
+    fontWeight: 'bold',
+    fontSize: FontSize.md,
   },
 });

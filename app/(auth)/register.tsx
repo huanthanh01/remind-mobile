@@ -3,7 +3,7 @@
  */
 
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { SafeAreaView, StyleSheet, KeyboardAvoidingView, Platform, Alert, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../stores/auth.store';
 import RegisterForm from '../../components/auth/RegisterForm';
@@ -38,11 +38,12 @@ export default function RegisterScreen() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <RegisterForm
           onSubmit={handleRegister}
           onSwitchToLogin={() => router.push('/(auth)/login')}
+          onGoBack={() => router.replace('/(tabs)')}
           isLoading={isLoading}
           globalError={globalError}
         />
@@ -55,6 +56,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Surface.canvas,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 16 : Platform.OS === 'web' ? 24 : 12,
   },
   flex: {
     flex: 1,

@@ -121,7 +121,7 @@ export default function CreatePostModal({
                     selectedForumId === forum._id && styles.forumChipTextActive,
                   ]}
                 >
-                  {forum.name}
+                  {forum.title}
                 </Text>
               </TouchableOpacity>
             ))}
