@@ -12,9 +12,11 @@ import ChatBubble from '../../components/ai-chat/ChatBubble';
 import ChatInput from '../../components/ai-chat/ChatInput';
 import SuggestionChips from '../../components/ai-chat/SuggestionChips';
 import TypingIndicator from '../../components/ai-chat/TypingIndicator';
+import GroupChat from '../../components/chat/GroupChat';
+import ChatModeToggle from '../../components/chat/ChatModeToggle';
+import { Brand, Ink, Surface, Spacing, FontSize, FontWeight, Radius } from '../../constants/theme';
 import WelcomeBanner from '../../components/ai-chat/WelcomeBanner';
 import type { AIChatMessage } from '../../stores/types';
-import { Brand, Ink, Surface, Spacing, FontSize, FontWeight } from '../../constants/theme';
 
 const INITIAL_MESSAGES: AIChatMessage[] = [
   {
@@ -38,6 +40,7 @@ export default function AIChatScreen() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
+  const [mode, setMode] = useState<'ai' | 'expert'>('ai');
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
@@ -150,12 +153,22 @@ export default function AIChatScreen() {
   const handleSend = () => sendMessage(inputValue);
   const handleSuggestion = (text: string) => sendMessage(text);
 
+  const isExpert = mode === 'expert';
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.shell}>
+      {/* ponytail: keep GroupChat mounted so rooms/messages/socket persist across AI<->expert switches */}
+      <View style={{ flex: 1, display: isExpert ? 'flex' : 'none' }}>
+        <GroupChat mode="expert" onChange={setMode} />
+      </View>
+
+      <View style={{ flex: 1, display: isExpert ? 'none' : 'flex' }}>
+        <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header bar to prevent messages from sticking to the top */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Trợ lý AI ReMind</Text>
         <Text style={styles.headerSubtitle}>Trò chuyện ẩn danh và chia sẻ tâm tư 24/7</Text>
+        <ChatModeToggle value={mode} onChange={setMode} />
       </View>
 
       <KeyboardAvoidingView
@@ -189,11 +202,16 @@ export default function AIChatScreen() {
           isKeyboardVisible={isKeyboardVisible}
         />
       </KeyboardAvoidingView>
-    </SafeAreaView>
+        </SafeAreaView>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  shell: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: Surface.canvas,
