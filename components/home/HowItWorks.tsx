@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Brand, Ink, FontSize, FontWeight, Spacing, Radius } from '../../constants/theme';
+import { Brand, Ink, Surface, FontSize, FontWeight, Spacing, Radius } from '../../constants/theme';
 
 const STEPS = [
   {
@@ -50,12 +50,12 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: Spacing.xl,
     paddingVertical: Spacing['2xl'],
-    backgroundColor: Ink[900], // ReMind signature dark teal-slate (#172A2A)
+    backgroundColor: Surface.canvas, // Light canvas background (#F7FAF9)
   },
   heading: {
     fontSize: FontSize['2xl'],
     fontWeight: FontWeight.bold,
-    color: '#FFFFFF',
+    color: Ink[900],
     marginBottom: Spacing.xl,
     letterSpacing: 0,
   },
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     top: 20,
     bottom: 20,
     width: 1.5,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: Brand[300], // Teal connecting line
   },
   stepRow: {
     flexDirection: 'row',
@@ -81,8 +81,8 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: Radius.full,
     borderWidth: 1.5,
-    borderColor: Brand[300],
-    backgroundColor: Ink[900],
+    borderColor: Brand[700],
+    backgroundColor: Brand[700], // Primary brand teal circle (#176B68)
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 2,
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: FontSize.xs,
     fontWeight: FontWeight.bold,
-    color: Brand[100],
+    color: '#FFFFFF',
   },
   content: {
     flex: 1,
@@ -99,12 +99,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: FontSize.base + 1,
     fontWeight: FontWeight.bold,
-    color: '#FFFFFF',
+    color: Ink[900],
     marginBottom: 4,
   },
   desc: {
     fontSize: FontSize.xs + 0.5,
-    color: 'rgba(255, 255, 255, 0.72)',
+    color: Ink[700],
     lineHeight: 20,
   },
 });
