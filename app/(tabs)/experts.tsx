@@ -20,6 +20,7 @@ import { useAuth } from '../../stores/auth.store';
 import Button from '../../components/common/Button';
 import Avatar from '../../components/common/Avatar';
 import AuthModal from '../../components/common/AuthModal';
+import Badge from '../../components/common/Badge';
 
 const SPECIALTIES = ['Tất cả', 'Trầm cảm', 'Lo âu', 'Stress công việc', 'Mối quan hệ', 'LGBTQ+'];
 const LANGUAGES = ['Tất cả', 'Tiếng Việt', 'Tiếng Anh'];
@@ -139,163 +140,215 @@ export default function ExpertsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Danh mục Chuyên gia</Text>
-        <Text style={styles.subtitle}>Tìm kiếm bác sĩ và chuyên gia tâm lý phù hợp với bạn</Text>
+    <View style={styles.container}>
+      {/* Curved Banner Header */}
+      <View style={styles.coverContainer}>
+        <View style={styles.coverBlob1} />
+        <View style={styles.coverBlob2} />
       </View>
 
-      {/* Search Input */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color={Ink[400]} style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Tìm theo tên, chuyên môn..."
-          placeholderTextColor={Ink[400]}
-          value={searchTerm}
-          onChangeText={setSearchTerm}
-        />
-        {searchTerm.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchTerm('')}>
-            <Ionicons name="close-circle" size={18} color={Ink[400]} />
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {/* Filters Horizontal Scrolls */}
-      <View style={styles.filterSection}>
-        {/* Specialty Filter */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
-          <Text style={styles.filterLabel}>Chuyên môn:</Text>
-          {SPECIALTIES.map((spec) => (
-            <TouchableOpacity
-              key={spec}
-              style={[styles.chip, selectedSpecialty === spec && styles.chipActive]}
-              onPress={() => setSelectedSpecialty(spec)}
-            >
-              <Text style={[styles.chipText, selectedSpecialty === spec && styles.chipTextActive]}>
-                {spec}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {/* Language Filter */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll} style={{ marginTop: Spacing.xs }}>
-          <Text style={styles.filterLabel}>Ngôn ngữ:</Text>
-          {LANGUAGES.map((lang) => (
-            <TouchableOpacity
-              key={lang}
-              style={[styles.chip, selectedLanguage === lang && styles.chipActive]}
-              onPress={() => setSelectedLanguage(lang)}
-            >
-              <Text style={[styles.chipText, selectedLanguage === lang && styles.chipTextActive]}>
-                {lang}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {/* Cost Filter */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll} style={{ marginTop: Spacing.xs }}>
-          <Text style={styles.filterLabel}>Chi phí:</Text>
-          {COSTS.map((cost) => (
-            <TouchableOpacity
-              key={cost}
-              style={[styles.chip, selectedCost === cost && styles.chipActive]}
-              onPress={() => setSelectedCost(cost)}
-            >
-              <Text style={[styles.chipText, selectedCost === cost && styles.chipTextActive]}>
-                {cost}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
-      {/* List */}
-      {loading ? (
-        <View style={styles.centerBox}>
-          <ActivityIndicator size="large" color={Brand[700]} />
-          <Text style={styles.loadingText}>Đang tải danh sách chuyên gia...</Text>
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Danh mục Chuyên gia</Text>
+          <Text style={styles.subtitle}>Tìm kiếm bác sĩ và chuyên gia tâm lý phù hợp với bạn</Text>
         </View>
-      ) : (
-        <FlatList
-          data={filteredExperts}
-          keyExtractor={(item) => item._id}
-          contentContainerStyle={[
-            styles.listContainer,
-            filteredExperts.length === 0 && { flexGrow: 1, justifyContent: 'center' }
-          ]}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={[Brand[700]]}
-              tintColor={Brand[700]}
-            />
-          }
-          ListEmptyComponent={
-            <View style={styles.centerBox}>
-              <Ionicons name="search-outline" size={48} color={Ink[300]} />
-              <Text style={styles.emptyTitle}>Không tìm thấy chuyên gia</Text>
-              <Text style={styles.emptyDesc}>Thử tìm kiếm với từ khóa khác hoặc bỏ lọc</Text>
+
+        {/* Search Input Floating */}
+        <View style={styles.searchContainer}>
+          <Ionicons name="search" size={20} color={Ink[400]} style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Tìm theo tên, chuyên môn..."
+            placeholderTextColor={Ink[400]}
+            value={searchTerm}
+            onChangeText={setSearchTerm}
+          />
+          {searchTerm.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchTerm('')}>
+              <Ionicons name="close-circle" size={18} color={Ink[400]} />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Filters Horizontal Scrolls */}
+        <View style={styles.filterSection}>
+          {/* Specialty Filter */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
+            <View style={styles.filterLabelContainer}>
+              <Ionicons name="sparkles" size={12} color={Brand[700]} />
+              <Text style={styles.filterLabelInline}>Lĩnh vực</Text>
             </View>
-          }
-          renderItem={({ item }) => (
-            <View style={styles.expertCard}>
-              <View style={styles.cardHeader}>
-                <Avatar name={item.fullName} size={48} />
-                <View style={styles.expertInfo}>
-                  <Text style={styles.expertName}>{item.fullName}</Text>
-                  <Text style={styles.expertTitle}>{item.title || 'Chuyên gia Tâm lý'}</Text>
-                  <View style={styles.ratingRow}>
-                    <Ionicons name="star" size={14} color="#F59E0B" />
-                    <Text style={styles.ratingText}>4.9 (48 đánh giá)</Text>
+            {SPECIALTIES.map((spec) => (
+              <TouchableOpacity
+                key={spec}
+                style={[styles.chip, selectedSpecialty === spec && styles.chipActive]}
+                onPress={() => setSelectedSpecialty(spec)}
+              >
+                <Text style={[styles.chipText, selectedSpecialty === spec && styles.chipTextActive]}>
+                  {spec}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          {/* Language Filter */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll} style={{ marginTop: Spacing.xs }}>
+            <View style={styles.filterLabelContainer}>
+              <Ionicons name="globe-outline" size={12} color={Brand[700]} />
+              <Text style={styles.filterLabelInline}>Ngôn ngữ</Text>
+            </View>
+            {LANGUAGES.map((lang) => (
+              <TouchableOpacity
+                key={lang}
+                style={[styles.chip, selectedLanguage === lang && styles.chipActive]}
+                onPress={() => setSelectedLanguage(lang)}
+              >
+                <Text style={[styles.chipText, selectedLanguage === lang && styles.chipTextActive]}>
+                  {lang}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          {/* Cost Filter */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll} style={{ marginTop: Spacing.xs }}>
+            <View style={styles.filterLabelContainer}>
+              <Ionicons name="cash-outline" size={12} color={Brand[700]} />
+              <Text style={styles.filterLabelInline}>Chi phí</Text>
+            </View>
+            {COSTS.map((cost) => (
+              <TouchableOpacity
+                key={cost}
+                style={[styles.chip, selectedCost === cost && styles.chipActive]}
+                onPress={() => setSelectedCost(cost)}
+              >
+                <Text style={[styles.chipText, selectedCost === cost && styles.chipTextActive]}>
+                  {cost}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* List */}
+        {loading ? (
+          <View style={styles.centerBox}>
+            <ActivityIndicator size="large" color={Brand[700]} />
+            <Text style={styles.loadingText}>Đang tải danh sách chuyên gia...</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={filteredExperts}
+            keyExtractor={(item) => item._id}
+            contentContainerStyle={[
+              styles.listContainer,
+              filteredExperts.length === 0 && { flexGrow: 1, justifyContent: 'center' }
+            ]}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[Brand[700]]}
+                tintColor={Brand[700]}
+              />
+            }
+            ListEmptyComponent={
+              <View style={styles.centerBox}>
+                <Ionicons name="search-outline" size={48} color={Ink[300]} />
+                <Text style={styles.emptyTitle}>Không tìm thấy chuyên gia</Text>
+                <Text style={styles.emptyDesc}>Thử tìm kiếm với từ khóa khác hoặc bỏ lọc</Text>
+              </View>
+            }
+            renderItem={({ item }) => (
+              <View style={styles.expertCard}>
+                <View style={styles.cardHeader}>
+                  <View style={styles.avatarWrapper}>
+                    <Avatar name={item.fullName} size={52} />
+                    <View style={styles.activeDotBadge} />
+                  </View>
+                  <View style={styles.expertInfo}>
+                    <Text style={styles.expertName}>{item.fullName}</Text>
+                    <Text style={styles.expertTitle}>{item.title || 'Chuyên gia Tâm lý'}</Text>
+                    <View style={styles.metaRow}>
+                      <View style={styles.ratingBadge}>
+                        <Ionicons name="star" size={11} color="#F59E0B" />
+                        <Text style={styles.ratingValue}>4.9</Text>
+                      </View>
+                      <Text style={styles.reviewCount}>(48 đánh giá)</Text>
+                    </View>
                   </View>
                 </View>
-              </View>
 
-              <Text style={styles.bioText} numberOfLines={2}>
-                {item.bio || 'Chuyên gia nhiều năm kinh nghiệm tư vấn và trị liệu tâm lý.'}
-              </Text>
+                <Text style={styles.bioText} numberOfLines={2}>
+                  {item.bio || 'Chuyên gia nhiều năm kinh nghiệm tư vấn và trị liệu tâm lý.'}
+                </Text>
 
-              <View style={styles.cardFooter}>
-                <View style={styles.priceBox}>
-                  <Text style={styles.priceLabel}>Chi phí</Text>
-                  <Text style={styles.priceVal}>
-                    {item.priceFrom ? `${item.priceFrom.toLocaleString('vi-VN')} đ` : 'Miễn phí'}
-                  </Text>
+                {/* Specialties & languages tags */}
+                <View style={styles.tagsContainer}>
+                  {(item.specialties || []).slice(0, 3).map((spec, i) => (
+                    <Badge
+                      key={i}
+                      text={spec}
+                      variant={i % 2 === 0 ? 'brand' : 'blue'}
+                      style={styles.specialtyBadge}
+                    />
+                  ))}
+                  {(item.languages || []).slice(0, 1).map((lang, i) => (
+                    <Badge
+                      key={`lang-${i}`}
+                      text={lang}
+                      variant="neutral"
+                      style={styles.specialtyBadge}
+                    />
+                  ))}
                 </View>
 
-                <Button
-                  title="Đặt lịch"
-                  onPress={() => handleOpenBooking(item)}
-                  size="sm"
-                  variant="primary"
-                />
-              </View>
-            </View>
-          )}
-        />
-      )}
+                <View style={styles.cardFooter}>
+                  <View style={styles.priceBox}>
+                    <Text style={styles.priceLabel}>Chi phí từ</Text>
+                    <Text style={styles.priceVal}>
+                      {item.priceFrom ? `${item.priceFrom.toLocaleString('vi-VN')} đ` : 'Miễn phí'}
+                    </Text>
+                  </View>
 
-      {/* Booking Modal */}
+                  <Button
+                    title="Đặt lịch hẹn"
+                    onPress={() => handleOpenBooking(item)}
+                    size="sm"
+                    variant="primary"
+                    style={styles.bookBtn}
+                  />
+                </View>
+              </View>
+            )}
+          />
+        )}
+      </SafeAreaView>
+
+      {/* Booking Modal (Bottom Sheet style) */}
       {bookingExpert && (
-        <Modal visible transparent animationType="slide">
+        <Modal visible transparent animationType="slide" onRequestClose={() => setBookingExpert(null)}>
           <View style={styles.modalOverlay}>
+            <TouchableOpacity
+              style={styles.modalBackdropClose}
+              activeOpacity={1}
+              onPress={() => setBookingExpert(null)}
+            />
             <View style={styles.modalContainer}>
+              {/* Handle Bar */}
+              <View style={styles.bottomSheetHandle} />
+
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Đặt lịch hẹn tư vấn</Text>
-                <TouchableOpacity onPress={() => setBookingExpert(null)}>
-                  <Ionicons name="close" size={24} color={Ink[700]} />
+                <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setBookingExpert(null)}>
+                  <Ionicons name="close" size={20} color={Ink[700]} />
                 </TouchableOpacity>
               </View>
 
               <View style={styles.bookingExpertRow}>
-                <Avatar name={bookingExpert.fullName} size={40} />
-                <View style={{ marginLeft: Spacing.md }}>
+                <Avatar name={bookingExpert.fullName} size={44} />
+                <View style={{ marginLeft: Spacing.md, flex: 1 }}>
                   <Text style={styles.expertName}>{bookingExpert.fullName}</Text>
                   <Text style={styles.expertTitle}>{bookingExpert.title || 'Chuyên gia Tâm lý'}</Text>
                 </View>
@@ -308,7 +361,7 @@ export default function ExpertsScreen() {
               ) : slots.length === 0 ? (
                 <Text style={styles.noSlotsText}>Chuyên gia hiện chưa có lịch trống khả dụng.</Text>
               ) : (
-                <ScrollView style={{ maxHeight: 220 }} contentContainerStyle={{ gap: Spacing.xs }}>
+                <ScrollView style={{ maxHeight: 220 }} contentContainerStyle={{ gap: Spacing.xs }} showsVerticalScrollIndicator={false}>
                   {slots.map((slot) => {
                     const isSelected = selectedSlotId === slot._id;
                     return (
@@ -316,10 +369,19 @@ export default function ExpertsScreen() {
                         key={slot._id}
                         style={[styles.slotItem, isSelected && styles.slotItemSelected]}
                         onPress={() => setSelectedSlotId(slot._id)}
+                        activeOpacity={0.7}
                       >
-                        <Text style={[styles.slotText, isSelected && styles.slotTextSelected]}>
-                          {formatSlotTime(slot)}
-                        </Text>
+                        <View style={styles.slotLeft}>
+                          <Ionicons
+                            name={isSelected ? "radio-button-on" : "radio-button-off"}
+                            size={18}
+                            color={isSelected ? Brand[700] : Ink[400]}
+                            style={{ marginRight: Spacing.sm }}
+                          />
+                          <Text style={[styles.slotText, isSelected && styles.slotTextSelected]}>
+                            {formatSlotTime(slot)}
+                          </Text>
+                        </View>
                         <Text style={[styles.slotPrice, isSelected && styles.slotTextSelected]}>
                           {slot.price.toLocaleString('vi-VN')} đ
                         </Text>
@@ -337,12 +399,12 @@ export default function ExpertsScreen() {
                   style={{ flex: 1 }}
                 />
                 <Button
-                  title="Xác nhận"
+                  title="Xác nhận đặt lịch"
                   variant="primary"
                   loading={bookingInProgress}
                   disabled={!selectedSlotId}
                   onPress={handleConfirmBooking}
-                  style={{ flex: 1 }}
+                  style={{ flex: 2 }}
                 />
               </View>
             </View>
@@ -357,7 +419,7 @@ export default function ExpertsScreen() {
         title="Yêu cầu Đăng nhập"
         message="Vui lòng đăng nhập bằng tài khoản học viên để thực hiện đặt lịch hẹn tư vấn với chuyên gia tâm lý."
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -366,32 +428,61 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Surface.canvas,
   },
+  coverContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 160,
+    backgroundColor: Brand[700],
+    overflow: 'hidden',
+  },
+  coverBlob1: {
+    position: 'absolute',
+    top: -60,
+    right: -40,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  coverBlob2: {
+    position: 'absolute',
+    bottom: -80,
+    left: -40,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
   header: {
     paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.md,
-    paddingBottom: Spacing.sm,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.xs,
   },
   title: {
     fontSize: FontSize['2xl'],
     fontWeight: FontWeight.bold,
-    color: Ink[900],
+    color: Surface.white,
   },
   subtitle: {
     fontSize: FontSize.sm,
-    color: Ink[500],
-    marginTop: 2,
+    color: 'rgba(255, 255, 255, 0.85)',
+    marginTop: Spacing.xs,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Surface.white,
     marginHorizontal: Spacing.lg,
-    marginVertical: Spacing.sm,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.md,
     paddingHorizontal: Spacing.md,
-    height: 44,
+    height: 48,
     borderRadius: Radius.lg,
     borderWidth: 1,
-    borderColor: Surface.border,
+    borderColor: 'rgba(23, 107, 104, 0.15)',
+    ...Shadow.md,
   },
   searchIcon: {
     marginRight: Spacing.xs,
@@ -402,23 +493,32 @@ const styles = StyleSheet.create({
     color: Ink[900],
   },
   filterSection: {
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
+    gap: Spacing.xs,
   },
   filterScroll: {
     paddingHorizontal: Spacing.lg,
     gap: Spacing.xs,
+    alignItems: 'center',
   },
-  filterLabel: {
-    fontSize: FontSize.xs,
-    fontWeight: FontWeight.semibold,
-    color: Ink[500],
-    alignSelf: 'center',
+  filterLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginRight: Spacing.xs,
-    minWidth: 70,
+    backgroundColor: Brand['050'],
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 5,
+    borderRadius: Radius.sm,
+    gap: 4,
+  },
+  filterLabelInline: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.bold,
+    color: Brand[700],
   },
   chip: {
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
+    paddingVertical: 6,
     borderRadius: Radius.full,
     backgroundColor: Surface.white,
     borderWidth: 1,
@@ -431,27 +531,42 @@ const styles = StyleSheet.create({
   chipText: {
     fontSize: FontSize.xs,
     fontWeight: FontWeight.medium,
-    color: Ink[700],
+    color: Ink[600],
   },
   chipTextActive: {
     color: Surface.white,
+    fontWeight: FontWeight.bold,
   },
   listContainer: {
     paddingHorizontal: Spacing.lg,
-    paddingBottom: 120,
+    paddingBottom: 100,
     gap: Spacing.md,
   },
   expertCard: {
     backgroundColor: Surface.white,
     borderRadius: Radius.xl,
-    padding: Spacing.md,
+    padding: Spacing.base,
     borderWidth: 1,
-    borderColor: Surface.border,
-    ...Shadow.sm,
+    borderColor: 'rgba(214, 226, 224, 0.8)',
+    ...Shadow.md,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  avatarWrapper: {
+    position: 'relative',
+  },
+  activeDotBadge: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#10B981',
+    borderWidth: 2,
+    borderColor: Surface.white,
   },
   expertInfo: {
     marginLeft: Spacing.md,
@@ -467,21 +582,46 @@ const styles = StyleSheet.create({
     color: Ink[500],
     marginTop: 2,
   },
-  ratingRow: {
+  metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 4,
-    gap: 4,
+    gap: Spacing.xs,
   },
-  ratingText: {
+  ratingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: Radius.sm,
+    gap: 3,
+  },
+  ratingValue: {
     fontSize: FontSize.xs,
-    color: Ink[600],
+    fontWeight: FontWeight.bold,
+    color: '#D97706',
+  },
+  reviewCount: {
+    fontSize: FontSize.xs,
+    color: Ink[400],
   },
   bioText: {
     fontSize: FontSize.sm,
-    color: Ink[700],
-    marginVertical: Spacing.sm,
-    lineHeight: 18,
+    color: Ink[600],
+    marginTop: Spacing.sm,
+    lineHeight: 20,
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.xs,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.xs,
+  },
+  specialtyBadge: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 3,
   },
   cardFooter: {
     flexDirection: 'row',
@@ -490,6 +630,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: Surface.muted,
     paddingTop: Spacing.sm,
+    marginTop: Spacing.sm,
   },
   priceBox: {
     flexDirection: 'column',
@@ -499,9 +640,116 @@ const styles = StyleSheet.create({
     color: Ink[400],
   },
   priceVal: {
-    fontSize: FontSize.base,
+    fontSize: FontSize.md,
     fontWeight: FontWeight.bold,
     color: Brand[700],
+  },
+  bookBtn: {
+    borderRadius: Radius.lg,
+    paddingHorizontal: Spacing.md,
+    ...Shadow.sm,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalBackdropClose: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  modalContainer: {
+    backgroundColor: Surface.white,
+    borderTopLeftRadius: Radius.xl,
+    borderTopRightRadius: Radius.xl,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.xl,
+    maxHeight: '85%',
+    ...Shadow.lg,
+  },
+  bottomSheetHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: Surface.border,
+    alignSelf: 'center',
+    marginBottom: Spacing.md,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.base,
+  },
+  modalTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+    color: Ink[900],
+  },
+  modalCloseBtn: {
+    padding: 4,
+  },
+  bookingExpertRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.md,
+    backgroundColor: Surface.canvas,
+    borderRadius: Radius.lg,
+    marginBottom: Spacing.base,
+    borderWidth: 1,
+    borderColor: Surface.border,
+  },
+  slotLabel: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.bold,
+    color: Ink[700],
+    marginBottom: Spacing.sm,
+  },
+  noSlotsText: {
+    fontSize: FontSize.sm,
+    color: Ink[500],
+    marginVertical: Spacing.xl,
+    textAlign: 'center',
+  },
+  slotItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: Spacing.md,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Surface.border,
+    backgroundColor: Surface.white,
+  },
+  slotItemSelected: {
+    borderColor: Brand[700],
+    backgroundColor: Brand['050'],
+  },
+  slotLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  slotText: {
+    fontSize: FontSize.sm,
+    color: Ink[700],
+  },
+  slotPrice: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.bold,
+    color: Brand[700],
+  },
+  slotTextSelected: {
+    color: Brand[700],
+    fontWeight: FontWeight.bold,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginTop: Spacing.xl,
   },
   centerBox: {
     flex: 1,
@@ -511,7 +759,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: Spacing.sm,
-    color: Ink[500],
+    color: Ink[400],
     fontSize: FontSize.sm,
   },
   emptyTitle: {
@@ -525,79 +773,5 @@ const styles = StyleSheet.create({
     color: Ink[500],
     textAlign: 'center',
     marginTop: 4,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContainer: {
-    backgroundColor: Surface.white,
-    borderTopLeftRadius: Radius.xl,
-    borderTopRightRadius: Radius.xl,
-    padding: Spacing.lg,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-  },
-  modalTitle: {
-    fontSize: FontSize.lg,
-    fontWeight: FontWeight.bold,
-    color: Ink[900],
-  },
-  bookingExpertRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: Spacing.sm,
-    backgroundColor: Surface.canvas,
-    borderRadius: Radius.md,
-    marginBottom: Spacing.md,
-  },
-  slotLabel: {
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.semibold,
-    color: Ink[700],
-    marginBottom: Spacing.xs,
-  },
-  noSlotsText: {
-    fontSize: FontSize.sm,
-    color: Ink[500],
-    marginVertical: Spacing.md,
-    textAlign: 'center',
-  },
-  slotItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: Spacing.md,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Surface.border,
-    backgroundColor: Surface.white,
-  },
-  slotItemSelected: {
-    borderColor: Brand[700],
-    backgroundColor: Brand['050'],
-  },
-  slotText: {
-    fontSize: FontSize.sm,
-    color: Ink[900],
-  },
-  slotPrice: {
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.semibold,
-    color: Brand[700],
-  },
-  slotTextSelected: {
-    color: Brand[700],
-    fontWeight: FontWeight.bold,
-  },
-  modalActions: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-    marginTop: Spacing.lg,
   },
 });
