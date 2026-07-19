@@ -23,6 +23,7 @@ export default function SuggestionChips({ onSelect }: SuggestionChipsProps) {
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
+      style={styles.scrollView}
       contentContainerStyle={styles.container}
     >
       {SUGGESTIONS.map((item) => (
@@ -41,10 +42,14 @@ export default function SuggestionChips({ onSelect }: SuggestionChipsProps) {
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flexGrow: 0,
+  },
   container: {
     paddingHorizontal: Spacing.base,
     paddingVertical: Spacing.md,
     gap: Spacing.sm,
+    alignItems: 'center',
   },
   chip: {
     flexDirection: 'row',

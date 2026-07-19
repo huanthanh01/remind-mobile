@@ -38,7 +38,7 @@ export default function LoginScreen() {
           onSubmit={handleLogin}
           onSwitchToRegister={() => router.push('/(auth)/register')}
           onForgotPassword={() => {
-            // TODO: implement forgot password screen
+            router.push('/(auth)/forgot-password' as any);
           }}
           onGoBack={() => router.replace('/(tabs)')}
           isLoading={isLoading}

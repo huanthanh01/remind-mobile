@@ -22,12 +22,14 @@ export const ForumService = {
     return (data as { forums: ForumType[] }).forums || [];
   },
 
-  /** List posts with pagination */
-  async getPosts(page = 1, limit = 10): Promise<PostsResponse> {
+  /** List posts with pagination and optional forumId filter */
+  async getPosts(page = 1, limit = 10, forumId?: string): Promise<PostsResponse> {
     try {
-      const data = await apiHelper.get<any>(
-        `${API_ENDPOINTS.FORUMS.LIST_POSTS}?page=${page}&limit=${limit}`,
-      );
+      let url = `${API_ENDPOINTS.FORUMS.LIST_POSTS}?page=${page}&limit=${limit}`;
+      if (forumId) {
+        url += `&forumId=${forumId}`;
+      }
+      const data = await apiHelper.get<any>(url);
       return {
         posts: data?.posts || data || [],
         currentPage: data?.currentPage || page,

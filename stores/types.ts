@@ -28,7 +28,8 @@ export interface AuthResponse {
 
 export interface ForumType {
   _id: string;
-  name: string;
+  name?: string;
+  title: string;
   description?: string;
   createdAt?: string;
 }
@@ -47,6 +48,7 @@ export interface PostType {
   author?: PostAuthor;
   authorName?: string;
   forum?: ForumType | string;
+  forumId?: string;
   forumName?: string;
   tags?: string[];
   isAnonymous?: boolean;
