@@ -69,7 +69,23 @@ export default function AIChatScreen() {
       time: timeStr,
     };
 
-    setMessages((prev) => [...prev, userMsg]);
+    // Prepare history before state update
+    const history = messages
+      .filter((m) => m.id !== 1 && m.id !== 2) // Exclude hardcoded initial messages from history
+      .map((m) => ({
+        role: m.sender === 'bot' ? 'ai' : 'user',
+        text: m.text,
+      }));
+
+    const botMsgId = Date.now() + 1;
+    const initialBotMsg: AIChatMessage = {
+      id: botMsgId,
+      sender: 'bot',
+      text: '',
+      time: timeStr,
+    };
+
+    setMessages((prev) => [...prev, userMsg, initialBotMsg]);
     setInputValue('');
     setShowBanner(false);
     scrollToBottom();
@@ -78,28 +94,38 @@ export default function AIChatScreen() {
     setIsTyping(true);
 
     try {
-      const reply = await AIService.sendMessage(text.trim());
-      const botMsg: AIChatMessage = {
-        id: Date.now() + 1,
-        sender: 'bot',
-        text: reply,
-        time:
-          new Date().getHours().toString().padStart(2, '0') +
-          ':' +
-          new Date().getMinutes().toString().padStart(2, '0'),
-      };
-      setMessages((prev) => [...prev, botMsg]);
+      await AIService.sendMessageStream(
+        text.trim(),
+        history,
+        (chunkText) => {
+          setIsTyping(false); // Hide typing indicator when first chunk arrives
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === botMsgId ? { ...m, text: m.text + chunkText } : m
+            )
+          );
+        },
+        () => {
+          setIsTyping(false);
+          scrollToBottom();
+        },
+        (error) => {
+          setIsTyping(false);
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === botMsgId
+                ? {
+                    ...m,
+                    text: m.text || 'Xin lỗi, tôi đang gặp sự cố. Vui lòng thử lại sau nhé. 🙏',
+                  }
+                : m
+            )
+          );
+          scrollToBottom();
+        }
+      );
     } catch (error) {
-      const errorMsg: AIChatMessage = {
-        id: Date.now() + 1,
-        sender: 'bot',
-        text: 'Xin lỗi, tôi đang gặp sự cố. Vui lòng thử lại sau nhé. 🙏',
-        time: timeStr,
-      };
-      setMessages((prev) => [...prev, errorMsg]);
-    } finally {
       setIsTyping(false);
-      scrollToBottom();
     }
   };
 
