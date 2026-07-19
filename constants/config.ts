@@ -4,7 +4,9 @@
  * Change this when testing locally (e.g. http://10.0.2.2:3000 for Android emulator).
  */
 
-// Sử dụng địa chỉ IP LAN (192.168.1.13) để test Expo Go trên điện thoại thật
+// Physical device (scan QR with Expo Go): use your computer's LAN IP (this machine is 192.168.1.60).
+export const BASE_URL = 'http://192.168.1.60:4000'; // Physical phone on same WiFi
+// export const BASE_URL = 'http://localhost:4000'; // iOS Simulator
+// export const BASE_URL = 'http://10.0.2.2:4000'; // Android Emulator
 // export const BASE_URL = 'https://remind-backend-wdv3.onrender.com'; // Production
-export const BASE_URL = 'http://192.168.1.13:4000'; // Đổi IP này nếu máy tính đổi mạng WiFi
 export const API_BASE_URL = `${BASE_URL}/api`;

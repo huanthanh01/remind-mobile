@@ -9,7 +9,6 @@ import {
   FlatList,
   Modal,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,6 +16,7 @@ import { Brand, Ink, Surface, Radius, FontSize, FontWeight, Spacing, Shadow } fr
 import { ExpertService, MobileExpert, MobileExpertSlot } from '../../services/expert.service';
 import Button from '../../components/common/Button';
 import Avatar from '../../components/common/Avatar';
+import PaymentFlow from '../../components/payment/PaymentFlow';
 
 const SPECIALTIES = ['Tất cả', 'Trầm cảm', 'Lo âu', 'Stress công việc', 'Mối quan hệ', 'LGBTQ+'];
 const LANGUAGES = ['Tất cả', 'Tiếng Việt', 'Tiếng Anh'];
@@ -36,6 +36,7 @@ export default function ExpertsScreen() {
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [selectedSlotId, setSelectedSlotId] = useState('');
   const [bookingInProgress, setBookingInProgress] = useState(false);
+  const [paymentBooking, setPaymentBooking] = useState<{ expert: MobileExpert; slot: MobileExpertSlot } | null>(null);
 
   useEffect(() => {
     loadExperts();
@@ -81,22 +82,16 @@ export default function ExpertsScreen() {
 
   const handleConfirmBooking = async () => {
     if (!bookingExpert || !selectedSlotId) return;
+    const slot = slots.find((s) => s._id === selectedSlotId);
+    if (!slot) return;
+    // Hand off slot + expert to the PaymentFlow step machine.
+    setPaymentBooking({ expert: bookingExpert, slot });
+  };
 
-    setBookingInProgress(true);
-    try {
-      const bookRes = await ExpertService.bookAppointment(bookingExpert._id, selectedSlotId);
-      const apptId = (bookRes as any)?.appointment?._id;
-      if (apptId) {
-        await ExpertService.createPayment(apptId);
-      }
-      Alert.alert('Đặt lịch thành công', 'Lịch hẹn của bạn đã được ghi nhận thành công!', [
-        { text: 'OK', onPress: () => setBookingExpert(null) },
-      ]);
-    } catch (err: any) {
-      Alert.alert('Thông báo', err.response?.data?.error || 'Có lỗi xảy ra khi đặt lịch');
-    } finally {
-      setBookingInProgress(false);
-    }
+  const closePayment = () => {
+    setPaymentBooking(null);
+    setBookingExpert(null);
+    setSelectedSlotId('');
   };
 
   const formatSlotTime = (slot: MobileExpertSlot) => {
@@ -209,65 +204,80 @@ export default function ExpertsScreen() {
         <Modal visible transparent animationType="slide">
           <View style={styles.modalOverlay}>
             <View style={styles.modalContainer}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Đặt lịch hẹn tư vấn</Text>
-                <TouchableOpacity onPress={() => setBookingExpert(null)}>
-                  <Ionicons name="close" size={24} color={Ink[700]} />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.bookingExpertRow}>
-                <Avatar name={bookingExpert.fullName} size={40} />
-                <View style={{ marginLeft: Spacing.md }}>
-                  <Text style={styles.expertName}>{bookingExpert.fullName}</Text>
-                  <Text style={styles.expertTitle}>{bookingExpert.title || 'Chuyên gia Tâm lý'}</Text>
-                </View>
-              </View>
-
-              <Text style={styles.slotLabel}>Chọn khung giờ còn trống:</Text>
-
-              {slotsLoading ? (
-                <ActivityIndicator size="small" color={Brand[700]} style={{ marginVertical: Spacing.xl }} />
-              ) : slots.length === 0 ? (
-                <Text style={styles.noSlotsText}>Chuyên gia hiện chưa có lịch trống khả dụng.</Text>
+              {paymentBooking ? (
+                <PaymentFlow
+                  expert={{ fullName: paymentBooking.expert.fullName, title: paymentBooking.expert.title }}
+                  slot={{
+                    label: formatSlotTime(paymentBooking.slot),
+                    price: paymentBooking.slot.price,
+                  }}
+                  expertId={paymentBooking.expert._id}
+                  slotId={paymentBooking.slot._id}
+                  onClose={closePayment}
+                />
               ) : (
-                <ScrollView style={{ maxHeight: 220 }} contentContainerStyle={{ gap: Spacing.xs }}>
-                  {slots.map((slot) => {
-                    const isSelected = selectedSlotId === slot._id;
-                    return (
-                      <TouchableOpacity
-                        key={slot._id}
-                        style={[styles.slotItem, isSelected && styles.slotItemSelected]}
-                        onPress={() => setSelectedSlotId(slot._id)}
-                      >
-                        <Text style={[styles.slotText, isSelected && styles.slotTextSelected]}>
-                          {formatSlotTime(slot)}
-                        </Text>
-                        <Text style={[styles.slotPrice, isSelected && styles.slotTextSelected]}>
-                          {slot.price.toLocaleString('vi-VN')} đ
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
-              )}
+                <>
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>Đặt lịch hẹn tư vấn</Text>
+                    <TouchableOpacity onPress={() => setBookingExpert(null)}>
+                      <Ionicons name="close" size={24} color={Ink[700]} />
+                    </TouchableOpacity>
+                  </View>
 
-              <View style={styles.modalActions}>
-                <Button
-                  title="Hủy"
-                  variant="outline"
-                  onPress={() => setBookingExpert(null)}
-                  style={{ flex: 1 }}
-                />
-                <Button
-                  title="Xác nhận"
-                  variant="primary"
-                  loading={bookingInProgress}
-                  disabled={!selectedSlotId}
-                  onPress={handleConfirmBooking}
-                  style={{ flex: 1 }}
-                />
-              </View>
+                  <View style={styles.bookingExpertRow}>
+                    <Avatar name={bookingExpert.fullName} size={40} />
+                    <View style={{ marginLeft: Spacing.md }}>
+                      <Text style={styles.expertName}>{bookingExpert.fullName}</Text>
+                      <Text style={styles.expertTitle}>{bookingExpert.title || 'Chuyên gia Tâm lý'}</Text>
+                    </View>
+                  </View>
+
+                  <Text style={styles.slotLabel}>Chọn khung giờ còn trống:</Text>
+
+                  {slotsLoading ? (
+                    <ActivityIndicator size="small" color={Brand[700]} style={{ marginVertical: Spacing.xl }} />
+                  ) : slots.length === 0 ? (
+                    <Text style={styles.noSlotsText}>Chuyên gia hiện chưa có lịch trống khả dụng.</Text>
+                  ) : (
+                    <ScrollView style={{ maxHeight: 220 }} contentContainerStyle={{ gap: Spacing.xs }}>
+                      {slots.map((slot) => {
+                        const isSelected = selectedSlotId === slot._id;
+                        return (
+                          <TouchableOpacity
+                            key={slot._id}
+                            style={[styles.slotItem, isSelected && styles.slotItemSelected]}
+                            onPress={() => setSelectedSlotId(slot._id)}
+                          >
+                            <Text style={[styles.slotText, isSelected && styles.slotTextSelected]}>
+                              {formatSlotTime(slot)}
+                            </Text>
+                            <Text style={[styles.slotPrice, isSelected && styles.slotTextSelected]}>
+                              {slot.price.toLocaleString('vi-VN')} đ
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </ScrollView>
+                  )}
+
+                  <View style={styles.modalActions}>
+                    <Button
+                      title="Hủy"
+                      variant="outline"
+                      onPress={() => setBookingExpert(null)}
+                      style={{ flex: 1 }}
+                    />
+                    <Button
+                      title="Xác nhận"
+                      variant="primary"
+                      loading={bookingInProgress}
+                      disabled={!selectedSlotId}
+                      onPress={handleConfirmBooking}
+                      style={{ flex: 1 }}
+                    />
+                  </View>
+                </>
+              )}
             </View>
           </View>
         </Modal>

@@ -102,7 +102,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password: string,
       role: 'student' | 'expert' = 'student',
     ) => {
+      console.log('[REGISTER] calling AuthService.register with', { fullName, email, role });
       const response = await AuthService.register(fullName, email, password, role);
+      console.log('[REGISTER] success, user=', response.user);
       dispatch({ type: 'SET_USER', payload: response.user });
     },
     [],
