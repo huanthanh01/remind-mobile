@@ -35,12 +35,13 @@ const INITIAL_MESSAGES: AIChatMessage[] = [
 
 export default function AIChatScreen() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, currentUser } = useAuth();
+  const isExpertRole = currentUser?.role === 'expert';
   const [messages, setMessages] = useState<AIChatMessage[]>(INITIAL_MESSAGES);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
-  const [mode, setMode] = useState<'ai' | 'expert'>('ai');
+  const [mode, setMode] = useState<'ai' | 'expert'>(isExpertRole ? 'expert' : 'ai');
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
@@ -153,17 +154,18 @@ export default function AIChatScreen() {
   const handleSend = () => sendMessage(inputValue);
   const handleSuggestion = (text: string) => sendMessage(text);
 
-  const isExpert = mode === 'expert';
+  const isExpertMode = isExpertRole || mode === 'expert';
 
   return (
     <View style={styles.shell}>
       {/* ponytail: keep GroupChat mounted so rooms/messages/socket persist across AI<->expert switches */}
-      <View style={{ flex: 1, display: isExpert ? 'flex' : 'none' }}>
+      <View style={{ flex: 1, display: isExpertMode ? 'flex' : 'none' }}>
         <GroupChat mode="expert" onChange={setMode} />
       </View>
 
-      <View style={{ flex: 1, display: isExpert ? 'none' : 'flex' }}>
-        <SafeAreaView style={styles.container} edges={['top']}>
+      {!isExpertRole && (
+        <View style={{ flex: 1, display: isExpertMode ? 'none' : 'flex' }}>
+          <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header bar to prevent messages from sticking to the top */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Trợ lý AI ReMind</Text>
@@ -202,8 +204,9 @@ export default function AIChatScreen() {
           isKeyboardVisible={isKeyboardVisible}
         />
       </KeyboardAvoidingView>
-        </SafeAreaView>
-      </View>
+          </SafeAreaView>
+        </View>
+      )}
     </View>
   );
 }

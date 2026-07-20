@@ -174,7 +174,9 @@ export default function GroupChat({ mode = 'expert', onChange }: { mode?: 'ai' |
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={[styles.header, { paddingTop: insets.top || Spacing.md }]}>
           <Text style={styles.title}>Tin nhắn</Text>
-          <ChatModeToggle value={mode} onChange={onChange || (() => {})} />
+          {currentUser?.role !== 'expert' && (
+            <ChatModeToggle value={mode} onChange={onChange || (() => {})} />
+          )}
         </View>
         <FlatList
           data={rooms}

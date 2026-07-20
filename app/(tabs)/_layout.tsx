@@ -45,7 +45,6 @@ function CustomTabBar({
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         if ((options as any).href === null) return null;
-        if (route.name === 'ai-chat' && isExpert) return null;
 
         const isFocused = state.index === index;
         const config = TAB_CONFIG[route.name] || {
@@ -114,8 +113,7 @@ export default function TabLayout() {
         <Tabs.Screen 
           name="ai-chat" 
           options={{ 
-            title: 'AI Chat',
-            href: isExpert ? null : undefined,
+            title: isExpert ? 'Tin nhắn' : 'AI Chat',
           }} 
         />
         <Tabs.Screen name="experts" options={{ title: 'Chuyên gia' }} />
