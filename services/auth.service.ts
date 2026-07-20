@@ -123,4 +123,29 @@ export const AuthService = {
       throw new Error(errorMsg);
     }
   },
+
+  /** Update profile name */
+  async updateProfile(fullName: string): Promise<UserDto> {
+    try {
+      const data = await apiHelper.put<{ user: UserDto }>('/auth/profile', { fullName });
+      if (data && data.user) {
+        await setToken(TokenKeys.USER, JSON.stringify(data.user));
+        return data.user;
+      }
+      throw new Error('Không thể cập nhật hồ sơ.');
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.error || 'Cập nhật hồ sơ thất bại.';
+      throw new Error(errorMsg);
+    }
+  },
+
+  /** Change user password */
+  async changePassword(currentPassword: string, newPassword: string): Promise<unknown> {
+    try {
+      return await apiHelper.put('/auth/change-password', { currentPassword, newPassword });
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.error || 'Đổi mật khẩu thất bại.';
+      throw new Error(errorMsg);
+    }
+  },
 };
