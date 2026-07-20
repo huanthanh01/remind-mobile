@@ -10,6 +10,7 @@ import {
   Modal,
   ActivityIndicator,
   Alert,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -33,6 +34,7 @@ import Avatar from "../../components/common/Avatar";
 import PaymentFlow from "../../components/payment/PaymentFlow";
 import AuthModal from "../../components/common/AuthModal";
 import Badge from "../../components/common/Badge";
+import { useAuth } from "../../stores/auth.store";
 
 const SPECIALTIES = [
   "Tất cả",
@@ -441,7 +443,7 @@ export default function ExpertsScreen() {
                   }}
                   expertId={paymentBooking.expert._id}
                   slotId={paymentBooking.slot._id}
-                  onClose={closePayment}
+                  onClose={() => setPaymentBooking(null)}
                 />
               ) : (
                 <>
