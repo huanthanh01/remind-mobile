@@ -35,6 +35,7 @@ import PaymentFlow from "../../components/payment/PaymentFlow";
 import AuthModal from "../../components/common/AuthModal";
 import Badge from "../../components/common/Badge";
 import { useAuth } from "../../stores/auth.store";
+import { Skeleton } from "../../components/common/SkeletonLoader";
 
 const SPECIALTIES = [
   "Tất cả",
@@ -46,6 +47,36 @@ const SPECIALTIES = [
 ];
 const LANGUAGES = ["Tất cả", "Tiếng Việt", "Tiếng Anh"];
 const COSTS = ["Tất cả", "Miễn phí", "< 500k", ">= 500k"];
+
+const SkeletonExpertCard = () => (
+  <View style={styles.expertCard}>
+    <View style={styles.cardHeader}>
+      <Skeleton width={52} height={52} borderRadius={26} />
+      <View style={styles.expertInfo}>
+        <Skeleton width={140} height={18} style={{ marginBottom: 4 }} />
+        <Skeleton width={100} height={14} style={{ marginBottom: 6 }} />
+        <View style={styles.metaRow}>
+          <Skeleton width={40} height={16} borderRadius={4} />
+          <Skeleton width={80} height={14} style={{ marginLeft: 6 }} />
+        </View>
+      </View>
+    </View>
+    <Skeleton width="100%" height={14} style={{ marginTop: 12, marginBottom: 4 }} />
+    <Skeleton width="80%" height={14} style={{ marginBottom: 12 }} />
+    <View style={styles.tagsContainer}>
+      <Skeleton width={60} height={24} borderRadius={12} />
+      <Skeleton width={70} height={24} borderRadius={12} />
+      <Skeleton width={50} height={24} borderRadius={12} />
+    </View>
+    <View style={styles.cardFooter}>
+      <View style={styles.priceBox}>
+        <Skeleton width={60} height={12} style={{ marginBottom: 4 }} />
+        <Skeleton width={80} height={18} />
+      </View>
+      <Skeleton width={100} height={36} borderRadius={8} />
+    </View>
+  </View>
+);
 
 export default function ExpertsScreen() {
   const { isAuthenticated } = useAuth();
@@ -311,12 +342,11 @@ export default function ExpertsScreen() {
 
         {/* List */}
         {loading ? (
-          <View style={styles.centerBox}>
-            <ActivityIndicator size="large" color={Brand[700]} />
-            <Text style={styles.loadingText}>
-              Đang tải danh sách chuyên gia...
-            </Text>
-          </View>
+          <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false}>
+            {[1, 2, 3, 4, 5].map((key) => (
+              <SkeletonExpertCard key={key} />
+            ))}
+          </ScrollView>
         ) : (
           <FlatList
             data={filteredExperts}

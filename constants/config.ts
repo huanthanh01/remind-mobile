@@ -5,7 +5,7 @@
  */
 
 // Physical device (scan QR with Expo Go): use your computer's LAN IP (this machine is 192.168.1.60).
-export const BASE_URL = 'http://192.168.1.60:4000'; // Physical phone on same WiFi
+export const BASE_URL = 'http://10.12.96.222:4000'; // Physical phone on same WiFi
 // export const BASE_URL = 'http://localhost:4000'; // iOS Simulator
 // export const BASE_URL = 'http://10.0.2.2:4000'; // Android Emulator
 // export const BASE_URL = 'https://remind-backend-wdv3.onrender.com'; // Production

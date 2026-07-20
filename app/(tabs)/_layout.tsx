@@ -42,6 +42,9 @@ function CustomTabBar({
   return (
     <View style={styles.floatingBar}>
       {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
+        if (options.href === null) return null;
+
         const isFocused = state.index === index;
         const config = TAB_CONFIG[route.name] || {
           icon: 'help-circle-outline',
@@ -91,6 +94,8 @@ function CustomTabBar({
 
 export default function TabLayout() {
   const [authModalVisible, setAuthModalVisible] = useState(false);
+  const { user } = useAuth();
+  const isExpert = user?.role === 'expert';
 
   return (
     <>
@@ -104,7 +109,13 @@ export default function TabLayout() {
       >
         <Tabs.Screen name="index" options={{ title: 'Trang chủ' }} />
         <Tabs.Screen name="forum" options={{ title: 'Diễn đàn' }} />
-        <Tabs.Screen name="ai-chat" options={{ title: 'AI Chat' }} />
+        <Tabs.Screen 
+          name="ai-chat" 
+          options={{ 
+            title: 'AI Chat',
+            href: isExpert ? null : undefined,
+          }} 
+        />
         <Tabs.Screen name="experts" options={{ title: 'Chuyên gia' }} />
         <Tabs.Screen name="profile" options={{ title: 'Tài khoản' }} />
       </Tabs>
