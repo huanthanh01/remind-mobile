@@ -9,6 +9,10 @@ export interface MobileExpert {
   languages?: string[];
   priceFrom?: number;
   avatarUrl?: string;
+  avatar?: string;
+  rating?: number;
+  reviewCount?: number;
+  yearsOfExperience?: number;
 }
 
 export interface MobileExpertSlot {
@@ -18,6 +22,24 @@ export interface MobileExpertSlot {
   endAt: string;
   price: number;
   status: 'available' | 'booked';
+}
+
+export interface MobileAppointment {
+  _id: string;
+  expertId: string | { _id?: string } | any;
+  status: string;
+  scheduledStartAt?: string;
+}
+
+export interface ExpertProfile extends MobileExpert {
+  title: string;
+  bio: string;
+  specialties: string[];
+  languages: string[];
+  yearsOfExperience: number;
+  rating: number;
+  reviewCount: number;
+  createdAt: string;
 }
 
 export const ExpertService = {
@@ -30,10 +52,28 @@ export const ExpertService = {
     }
   },
 
+  getExpertProfile: async (expertId: string): Promise<ExpertProfile | null> => {
+    try {
+      const res = await apiHelper.get<{ expert: ExpertProfile }>(`/experts/${expertId}`);
+      return res.expert || null;
+    } catch {
+      return null;
+    }
+  },
+
   getExpertSlots: async (expertId: string): Promise<MobileExpertSlot[]> => {
     try {
       const res = await apiHelper.get<{ slots: MobileExpertSlot[] }>(`/experts/${expertId}/availability`);
       return res.slots || [];
+    } catch {
+      return [];
+    }
+  },
+
+  getMyAppointments: async (): Promise<MobileAppointment[]> => {
+    try {
+      const res = await apiHelper.get<{ appointments: MobileAppointment[] }>('/appointments/mine');
+      return res.appointments || [];
     } catch {
       return [];
     }
