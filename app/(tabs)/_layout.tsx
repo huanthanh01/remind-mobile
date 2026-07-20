@@ -43,7 +43,7 @@ function CustomTabBar({
     <View style={styles.floatingBar}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
-        if (options.href === null) return null;
+        if ((options as any).href === null) return null;
 
         const isFocused = state.index === index;
         const config = TAB_CONFIG[route.name] || {
@@ -94,8 +94,8 @@ function CustomTabBar({
 
 export default function TabLayout() {
   const [authModalVisible, setAuthModalVisible] = useState(false);
-  const { user } = useAuth();
-  const isExpert = user?.role === 'expert';
+  const { currentUser } = useAuth();
+  const isExpert = currentUser?.role === 'expert';
 
   return (
     <>
