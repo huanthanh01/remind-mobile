@@ -37,13 +37,15 @@ function CustomTabBar({
   navigation,
   onRequireAuth,
 }: BottomTabBarProps & { onRequireAuth: () => void }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, currentUser } = useAuth();
+  const isExpert = currentUser?.role === 'expert';
 
   return (
     <View style={styles.floatingBar}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         if ((options as any).href === null) return null;
+        if (route.name === 'ai-chat' && isExpert) return null;
 
         const isFocused = state.index === index;
         const config = TAB_CONFIG[route.name] || {
